@@ -58,11 +58,6 @@ Test Status
 #define RESULT_PASS                             1
 #define RESULT_NG                               2
 
-/* Tp selftest status: open short spi */
-#define SELFTEST_INVALID                        0
-#define SELFTEST_FAIL                           1
-#define SELFTEST_PASS                           2
-
 #define TX_NUM_MAX                              60
 #define RX_NUM_MAX                              100
 #define SC_NUM_MAX                  ((TX_NUM_MAX) + (RX_NUM_MAX))
@@ -286,7 +281,6 @@ struct mc_sc_testitem {
     u32 scap_cb_test                : 1;
     u32 scap_rawdata_test           : 1;
     u32 short_test                  : 1;
-    u32 spi_test                    : 1;
     u32 panel_differ_test           : 1;
     u32 noise_test                  : 1;
     u32 mcap_cmb_test               : 1;
@@ -515,7 +509,6 @@ struct fts_test {
     struct fts_test_data testdata;
     char *testresult;
     int testresult_len;
-    char *csv_data_buffer;
     int result;
 #if defined(TEST_SAVE_FAIL_RESULT) && TEST_SAVE_FAIL_RESULT
     struct timeval tv;
@@ -537,10 +530,6 @@ struct test_funcs {
     int (*param_init)(void);
     int (*init)(void);
     int (*start_test)(void);
-    int (*open_test)(void);
-    int (*short_test)(void);
-    int (*spi_test)(void);
-    int (*data_dump)(int *, int *);
     void (*save_data_private)(char *buf, int *len);
 };
 

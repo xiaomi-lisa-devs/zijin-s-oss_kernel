@@ -2829,7 +2829,10 @@ int cgroup_attach_task(struct cgroup *dst_cgrp, struct task_struct *leader,
 	} while_each_thread(leader, task);
 	rcu_read_unlock();
 	spin_unlock_irq(&css_set_lock);
-
+        if(!strcmp(leader->comm,"surfaceflinger")) {
+            pr_warn("cgroup_attach_task leader =%s leader.pid = %d", leader->comm, leader->pid);
+            dump_stack();
+        }
 	/* prepare dst csets and commit */
 	ret = cgroup_migrate_prepare_dst(&mgctx);
 	if (!ret)

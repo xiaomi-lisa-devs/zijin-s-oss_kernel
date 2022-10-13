@@ -27,7 +27,6 @@
 #include <linux/soc/qcom/irq.h>
 
 #include <linux/soc/qcom/irq.h>
-
 #include "../core.h"
 #include "../pinconf.h"
 #include "pinctrl-msm.h"

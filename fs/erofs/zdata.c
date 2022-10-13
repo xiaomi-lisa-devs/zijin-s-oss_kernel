@@ -699,11 +699,13 @@ err_out:
 }
 
 static void z_erofs_vle_unzip_wq(struct work_struct *work);
-static void z_erofs_vle_unzip_kickoff(void *ptr, int bios, struct erofs_sb_info *sbi)
+static void z_erofs_vle_unzip_kickoff(void *ptr, int bios)
 {
 	tagptr1_t t = tagptr_init(tagptr1_t, ptr);
 	struct z_erofs_unzip_io *io = tagptr_unfold_ptr(t);
 	bool background = tagptr_unfold_tags(t);
+	struct z_erofs_unzip_io_sb *iosb = container_of(io, struct z_erofs_unzip_io_sb, io);
+	struct erofs_sb_info *const sbi = EROFS_SB(iosb->sb);
 
 	if (!background) {
 		unsigned long flags;
@@ -715,17 +717,16 @@ static void z_erofs_vle_unzip_kickoff(void *ptr, int bios, struct erofs_sb_info 
 		return;
 	}
 
-	if (atomic_add_return(bios, &io->pending_bios))
-		return;
+        if (atomic_add_return(bios, &io->pending_bios))
+            return;
 
-	/* Use workqueue decompression for atomic contexts only */
-	if (in_atomic() || irqs_disabled()) {
-		queue_work(z_erofs_workqueue, &io->u.work);
-		if (sbi)
-			sbi->readahead_sync_decompress = true;
-		return;
-	}
-	z_erofs_vle_unzip_wq(&io->u.work);
+        /* Use workqueue decompression for atomic contexts only */
+        if (in_atomic() || irqs_disabled()) {
+	    queue_work(z_erofs_workqueue, &io->u.work);
+            sbi->readahead_sync_decompress = true;
+            return;
+        }
+        z_erofs_vle_unzip_wq(&io->u.work);
 
 }
 
@@ -759,7 +760,7 @@ static inline void z_erofs_vle_read_endio(struct bio *bio)
 			unlock_page(page);
 	}
 
-	z_erofs_vle_unzip_kickoff(bio->bi_private, -1, sbi);
+	z_erofs_vle_unzip_kickoff(bio->bi_private, -1);
 	bio_put(bio);
 }
 
@@ -1311,7 +1312,7 @@ skippage:
 	if (postsubmit_is_all_bypassed(q, nr_bios, force_fg))
 		return true;
 
-	z_erofs_vle_unzip_kickoff(bi_private, nr_bios, sbi);
+	z_erofs_vle_unzip_kickoff(bi_private, nr_bios);
 	return true;
 }
 

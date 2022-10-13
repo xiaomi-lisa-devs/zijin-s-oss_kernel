@@ -7450,6 +7450,7 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 	int want_affine = 0;
 	int sync = (wake_flags & WF_SYNC) && !(current->flags & PF_EXITING);
 	int target_cpu = -1;
+
 	trace_android_rvh_select_task_rq_fair(p, prev_cpu, sd_flag,
 			wake_flags, &target_cpu);
 	if (target_cpu >= 0)
@@ -7457,6 +7458,7 @@ select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_f
 
 	if (sched_energy_enabled()) {
 		rcu_read_lock();
+
 #ifdef CONFIG_SCHED_WALT
 		new_cpu = find_energy_efficient_cpu(p, prev_cpu, sync,
 						    sibling_count_hint);

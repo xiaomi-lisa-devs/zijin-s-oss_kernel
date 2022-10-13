@@ -5705,7 +5705,7 @@ long sched_setaffinity(pid_t pid, const struct cpumask *in_mask)
 	retval = security_task_setscheduler(p);
 	if (retval)
 		goto out_free_new_mask;
-	
+
 	cpuset_cpus_allowed(p, cpus_allowed);
 	cpumask_and(new_mask, in_mask, cpus_allowed);
 

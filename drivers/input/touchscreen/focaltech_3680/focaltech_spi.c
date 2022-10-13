@@ -83,12 +83,6 @@ static int fts_spi_transfer(u8 *tx_buf, u8 *rx_buf, u32 len)
     spi_message_init(&msg);
     spi_message_add_tail(&xfer, &msg);
 
-#if defined(CONFIG_PM) && FTS_PATCH_COMERR_PM
-    if (fts_data && fts_data->pm_suspend) {
-        FTS_ERROR("system suspend, don't transfer.");
-        return -EACCES;
-    }
-#endif
     ret = spi_sync(spi, &msg);
     if (ret) {
         FTS_ERROR("spi_sync fail,ret:%d", ret);

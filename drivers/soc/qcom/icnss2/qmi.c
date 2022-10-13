@@ -40,9 +40,7 @@
 #define ELF_BDF_FILE_NAME		"bdwlan.elf"
 #define ELF_BDF_FILE_NAME_PREFIX	"bdwlan.e"
 
-#define ELF_BDF_FILE_NAME_L9            "bd_l9.elf"
-#define ELF_BDF_FILE_NAME_L9_GLOBAL     "bd_l9gl.elf"
-#define ELF_BDF_FILE_NAME_L9_INDIA      "bd_l9in.elf"
+#define ELF_BDF_FILE_NAME_K9E           "bd_k9e.elf"
 
 #define BIN_BDF_FILE_NAME		"bdwlan.bin"
 #define BIN_BDF_FILE_NAME_PREFIX	"bdwlan.b"
@@ -945,14 +943,8 @@ static int icnss_get_bdf_file_name(struct icnss_priv *priv,
 	switch (bdf_type) {
 	case ICNSS_BDF_ELF:
 		if (priv->board_id == 0xFF) {
-			if (hw_platform_ver == HARDWARE_PROJECT_L9) {
-				if ((uint32_t)CountryGlobal == hw_country_ver) {
-					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9_GLOBAL);
-				} else if ((uint32_t)CountryIndia == hw_country_ver) {
-					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9_INDIA);
-				} else {
-					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9);
-				}
+			if (hw_platform_ver == HARDWARE_PROJECT_K9E) {
+				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_K9E);
 			} else {
 				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
 			}

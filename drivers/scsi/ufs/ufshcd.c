@@ -4654,11 +4654,6 @@ static inline void ufshcd_hba_stop(struct ufs_hba *hba, bool can_sleep)
 		dev_err(hba->dev, "%s: Controller disable failed\n", __func__);
 }
 
-void ufshcd_hba_stoped(struct ufs_hba *hba, bool can_sleep)
-{
-	ufshcd_hba_stop(hba, can_sleep);
-}
-
 /**
  * ufshcd_hba_execute_hce - initialize the controller
  * @hba: per adapter instance
@@ -8007,8 +8002,6 @@ reinit:
 		unsigned long flags;
 		int err;
 
-		ufs_put_device_desc(hba);
-
 		ufshcd_vops_device_reset(hba);
 
 		/* Reset the host controller */
@@ -8784,9 +8777,6 @@ out:
 
 static void ufshcd_vreg_set_lpm(struct ufs_hba *hba)
 {
-	dev_err(hba->dev, " keep vcc/vccq always on\n", __func__);
-	/*keep vcc/vccq always on*/
-#if 0
 	bool vcc_off = false;
 
 	/*
@@ -8833,7 +8823,6 @@ static void ufshcd_vreg_set_lpm(struct ufs_hba *hba)
 	if (vcc_off && hba->vreg_info.vcc &&
 		hba->dev_quirks & UFS_DEVICE_QUIRK_DELAY_AFTER_LPM)
 		usleep_range(5000, 5100);
-#endif
 }
 
 static int ufshcd_vreg_set_hpm(struct ufs_hba *hba)

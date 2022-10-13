@@ -1148,7 +1148,17 @@ err_return:
 }
 #endif
 
-extern int mi_display_pm_suspend(void);
+typedef int (*mi_display_pm_suspend_callback)(void);
+mi_display_pm_suspend_callback mi_display_cb = NULL;
+
+void mi_display_pm_suspend_callback_set(mi_display_pm_suspend_callback cb)
+{
+	mi_display_cb = cb;
+	printk(KERN_INFO "%s: func %pF is set.\n", __func__, cb);
+	return;
+}
+EXPORT_SYMBOL(mi_display_pm_suspend_callback_set);
+
 static int longpress_kthread(void *_pon)
 {
 #ifdef CONFIG_MTD_BLOCK2MTD
@@ -1156,7 +1166,8 @@ static int longpress_kthread(void *_pon)
 	ktime_t time_to_S2, time_S2;
 
 	dev_err(pon->dev, "Long press :Start to run longpress_kthread ");
-	//mi_display_pm_suspend();
+	if(mi_display_cb != NULL)
+		mi_display_cb();
 
 	long_press();
 

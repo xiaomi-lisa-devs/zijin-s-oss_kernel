@@ -717,7 +717,6 @@ static int convert_ic_info(struct goodix_ic_info *info, const u8 *data)
 	struct goodix_ic_info_feature *feature = &info->feature;
 	struct goodix_ic_info_param *parm = &info->parm;
 	struct goodix_ic_info_misc *misc = &info->misc;
-	struct goodix_ic_info_other *other = &info->other;
 
 	info->length = le16_to_cpup((__le16 *)data);
 
@@ -819,8 +818,6 @@ static int convert_ic_info(struct goodix_ic_info *info, const u8 *data)
 	misc->touch_data_addr = le32_to_cpu(misc->touch_data_addr);
 	misc->touch_data_head_len = le16_to_cpu(misc->touch_data_head_len);
 	misc->point_struct_len = le16_to_cpu(misc->point_struct_len);
-	LE16_TO_CPU(misc->panel_x);
-	LE16_TO_CPU(misc->panel_y);
 	LE32_TO_CPU(misc->mutual_rawdata_addr);
 	LE32_TO_CPU(misc->mutual_diffdata_addr);
 	LE32_TO_CPU(misc->mutual_refdata_addr);
@@ -838,11 +835,6 @@ static int convert_ic_info(struct goodix_ic_info *info, const u8 *data)
 	LE32_TO_CPU(misc->noise_data_addr);
 	LE32_TO_CPU(misc->esd_addr);
 
-	data += sizeof(*misc);
-	memcpy((u8 *)other, data, sizeof(*other));
-	LE16_TO_CPU(other->screen_max_x);
-	LE16_TO_CPU(other->screen_max_y);
-
 	return 0;
 }
 
@@ -852,7 +844,6 @@ static void print_ic_info(struct goodix_ic_info *ic_info)
 	struct goodix_ic_info_feature *feature = &ic_info->feature;
 	struct goodix_ic_info_param *parm = &ic_info->parm;
 	struct goodix_ic_info_misc *misc = &ic_info->misc;
-	struct goodix_ic_info_other *other = &ic_info->other;
 
 	ts_info("ic_info_length:                %d",
 		ic_info->length);
@@ -904,12 +895,6 @@ static void print_ic_info(struct goodix_ic_info *ic_info)
 		misc->touch_data_addr, misc->touch_data_head_len);
 	ts_info("point_struct_len:              %d",
 		misc->point_struct_len);
-	ts_info("panel_x:                       %d",
-		 misc->panel_x);
-	ts_info("panel_y:                       %d",
-		 misc->panel_y);
-	ts_info("panel_max_x:                   %d", other->screen_max_x);
-	ts_info("panel_max_y:                   %d", other->screen_max_y);
 	ts_info("mutual_rawdata_addr:           0x%04X",
 		misc->mutual_rawdata_addr);
 	ts_info("mutual_diffdata_addr:          0x%04X",
@@ -1232,7 +1217,7 @@ static int brl_event_handler(struct goodix_ts_core *cd,
 	}
 	large_touch_status = pre_buf[2];
 	event_status = pre_buf[0];
-	ts_info("event_status = %d\n",event_status);
+	ts_err("event_status = %d\n",event_status);
 	memcpy (ts_event->touch_data.tmp_data,pre_buf,32*sizeof(u8));
 
 	if (event_status & GOODIX_POWERON_FOD_EVENT){

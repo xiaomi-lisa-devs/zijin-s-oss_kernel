@@ -32,7 +32,6 @@ struct user_struct {
 	struct hlist_node uidhash_node;
 	kuid_t uid;
 
-
 #if defined(CONFIG_PERF_EVENTS) || defined(CONFIG_BPF_SYSCALL) || \
     defined(CONFIG_NET) || defined(CONFIG_IO_URING)
 	atomic_long_t locked_vm;

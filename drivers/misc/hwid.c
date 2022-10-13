@@ -81,11 +81,20 @@ static ssize_t hwid_build_adc_show(struct kobject *kobj,
 const char *product_name_get(void)
 {
 	switch (project){
-		case HARDWARE_PROJECT_L9:
+		case HARDWARE_PROJECT_J18: return "cetus";
+		case HARDWARE_PROJECT_K1:  return "star";
+		case HARDWARE_PROJECT_K8:  return "odin";
+		case HARDWARE_PROJECT_K3S:  return "vili";
+		case HARDWARE_PROJECT_J18S:  return "argo";
+		case HARDWARE_PROJECT_K2:  return "venus";
+		case HARDWARE_PROJECT_K1A: return "mars";
+		case HARDWARE_PROJECT_K9:  return "renoir";
+		case HARDWARE_PROJECT_K11:
 			if ( (uint32_t)CountryIndia == get_hw_country_version())
-				return "taoyaoin";
+				return "haydnin";
 			else
-				return "taoyao";
+				return "haydn";
+		case HARDWARE_PROJECT_K9E: return "zijin";
 		default: return "unknown";
 	}
 }

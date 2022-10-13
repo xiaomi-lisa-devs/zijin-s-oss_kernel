@@ -509,7 +509,6 @@ static void aw8624_ram_loaded(const struct firmware *cont, void *context)
 	    (unsigned short)((cont->data[0] << 8) | (cont->data[1]))) {
 		pr_err("%s: check sum err: check_sum=0x%04x\n", __func__,
 		       check_sum);
-		release_firmware(cont);
 		return;
 	} else {
 		pr_info("%s: check sum pass : 0x%04x\n", __func__, check_sum);

@@ -36,7 +36,6 @@
 #define GOODIX_PEN_MAX_TILT				90
 #define GOODIX_CFG_MAX_SIZE				4096
 #define GOODIX_MAX_STR_LABLE_LEN		32
-#define GOODIX_MAX_FRAMEDATA_LEN		2000
 
 #define GOODIX_NORMAL_RESET_DELAY_MS	100
 #define GOODIX_HOLD_CPU_RESET_DELAY_MS  5
@@ -200,8 +199,8 @@ struct goodix_ic_info_misc { /* other data */
 	u32 touch_data_addr;
 	u16 touch_data_head_len;
 	u16 point_struct_len;
-	u16 panel_x;
-	u16 panel_y;
+	u16 reserved1;
+	u16 reserved2;
 	u32 mutual_rawdata_addr;
 	u32 mutual_diffdata_addr;
 	u32 mutual_refdata_addr;
@@ -218,18 +217,6 @@ struct goodix_ic_info_misc { /* other data */
 	u16 stylus_rawdata_len;
 	u32 noise_data_addr;
 	u32 esd_addr;
-	u32 auto_scan_cmd_addr;
-	u32 auto_scan_info_addr;
-};
-
-struct goodix_ic_info_other {
-	u16 normalize_k_version;
-	u32 irrigation_data_addr;
-	u32 algo_debug_data_addr;
-	u16 algo_debug_data_len;
-	u32 update_sync_data_addr;
-	u16 screen_max_x;
-	u16 screen_max_y;
 };
 
 struct goodix_ic_info {
@@ -238,7 +225,6 @@ struct goodix_ic_info {
 	struct goodix_ic_info_feature feature;
 	struct goodix_ic_info_param parm;
 	struct goodix_ic_info_misc misc;
-	struct goodix_ic_info_other other;
 };
 #pragma pack()
 
@@ -254,7 +240,7 @@ struct ts_rawdata_info {
 	char result[TS_RAWDATA_RESULT_MAX];
 };
 
-#define FRAME_DATA_MAX_LEN	2000
+#define FRAME_DATA_MAX_LEN	1500
 struct ts_framedata {
 	unsigned char buff[FRAME_DATA_MAX_LEN];
 	int used_size;
@@ -501,8 +487,6 @@ struct goodix_ts_core {
 	struct goodix_ts_hw_ops *hw_ops;
 	struct input_dev *input_dev;
 	struct input_dev *pen_dev;
-	struct class *goodix_tp_class;
-	struct device *goodix_touch_dev;
  	/* TODO counld we remove this from core data? */
 	struct goodix_ts_event ts_event;
 	unsigned long touch_id;
@@ -558,7 +542,6 @@ struct goodix_ts_core {
 	int aod_status;
 	int fod_status;
 	int fod_icon_status;
-	int nonui_status;
 	int charger_status;
 	int palm_status;
 	int result_type;

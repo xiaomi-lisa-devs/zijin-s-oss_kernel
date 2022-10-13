@@ -65,7 +65,6 @@ static atomic_t market_download_limit = ATOMIC_INIT(0);
 static char boost_buf[128];
 const char *board_sensor;
 static char board_sensor_temp[128];
-static char board_sensor_second_temp[128];
 #endif
 /*
  * Governor section: set of functions to handle thermal governors
@@ -1974,25 +1973,6 @@ static DEVICE_ATTR(board_sensor_temp, 0664,
 		thermal_board_sensor_temp_show, thermal_board_sensor_temp_store);
 
 static ssize_t
-thermal_board_sensor_second_temp_show(struct device *dev,
-		struct device_attribute *attr, char *buf)
-{
-	return snprintf(buf, PAGE_SIZE, board_sensor_second_temp);
-}
-
-static ssize_t
-thermal_board_sensor_second_temp_store(struct device *dev,
-		struct device_attribute *attr, const char *buf, size_t len)
-{
-	snprintf(board_sensor_second_temp, PAGE_SIZE, buf);
-
-	return len;
-}
-
-static DEVICE_ATTR(board_sensor_second_temp, 0664,
-		thermal_board_sensor_second_temp_show, thermal_board_sensor_second_temp_store);
-
-static ssize_t
 thermal_modem_limit_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
@@ -2072,10 +2052,6 @@ int create_thermal_message_node(void)
 		if (ret < 0)
 			pr_warn("Thermal: create board sensor temp node failed\n");
 
-		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_second_temp.attr);
-		if (ret < 0)
-			pr_warn("Thermal: create board sensor second temp node failed\n");
-
 		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_charger_temp.attr);
 		if (ret < 0)
 			pr_warn("Thermal: create charger temp node failed\n");
@@ -2095,7 +2071,6 @@ static void destroy_thermal_message_node(void)
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_charger_temp.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_modem_limit.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_temp.attr);
-    sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_second_temp.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_cpu_limits.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_temp_state.attr);

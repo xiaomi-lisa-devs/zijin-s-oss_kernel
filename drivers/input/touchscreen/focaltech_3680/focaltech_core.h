@@ -106,18 +106,13 @@
 #define FTS_TOUCHSCREEN_FOD
 #define FTS_LOCKDOWN_INFO_SIZE               8
 
-#define PANEL_ORIENTATION_DEGREE_0          0   /* normal portrait orientation */
-#define PANEL_ORIENTATION_DEGREE_90         1   /* anticlockwise 90 degrees */
-#define PANEL_ORIENTATION_DEGREE_180        2   /* anticlockwise 180 degrees */
-#define PANEL_ORIENTATION_DEGREE_270        3   /* anticlockwise 270 degrees */
-
 /*****************************************************************************
 *  Alternative mode (When something goes wrong, the modules may be able to solve the problem.)
 *****************************************************************************/
 /*
  * For commnication error in PM(deep sleep) state
  */
-#define FTS_PATCH_COMERR_PM                 1
+#define FTS_PATCH_COMERR_PM                 0
 #define FTS_TIMEOUT_COMERR_PM               700
 
 
@@ -128,8 +123,6 @@ struct ftxxxx_proc {
     struct proc_dir_entry *proc_entry;
     struct proc_dir_entry *tp_lockdown_info_proc;
     struct proc_dir_entry *tp_fw_version_proc;
-    struct proc_dir_entry *tp_selftest_proc;
-    struct proc_dir_entry *tp_data_dump_proc;
     u8 opmode;
     u8 cmd_len;
     u8 cmd[FTS_MAX_COMMMAND_LENGTH];
@@ -181,8 +174,6 @@ struct fts_ts_data {
     struct spi_device *spi;
     struct device *dev;
     struct input_dev *input_dev;
-    struct class *fts_tp_class;
-    struct device *fts_touch_dev;
     struct input_dev *pen_dev;
     struct fts_ts_platform_data *pdata;
     struct ts_ic_info ic_info;
@@ -190,11 +181,6 @@ struct fts_ts_data {
     struct work_struct fwupg_work;
     struct delayed_work esdcheck_work;
     struct delayed_work prc_work;
-    /* power supply options */
-    struct work_struct power_supply_work;
-    struct notifier_block power_supply_notifier;
-    bool is_usb_exist;
-    /* power supply options end */
     struct work_struct resume_work;
     struct work_struct suspend_work;
     wait_queue_head_t ts_waitqueue;
@@ -272,7 +258,6 @@ struct fts_ts_data {
     int palm_sensor_switch;
     bool poweroff_on_sleep;
     u8 gesture_status;
-    int nonui_status;
 };
 
 enum GESTURE_MODE_TYPE {
@@ -388,8 +373,4 @@ void fts_irq_disable(void);
 void fts_irq_enable(void);
 
 extern int mi_disp_set_fod_queue_work(u32 fod_btn, bool from_touch);
-/* power supply functions*/
-extern int power_supply_reg_notifier(struct notifier_block *nb);
-extern int power_supply_is_system_supplied(void);
-/* power supply functions end*/
 #endif /* __LINUX_FOCALTECH_CORE_H__ */

@@ -149,9 +149,6 @@ extern void touch_irq_boost(void);
 #define EVENT_INPUT 0x1
 extern void lpm_disable_for_dev(bool on, char event_dev);
 #endif
-#ifdef CONFIG_FTS_POWERSUPPLY_CB
-static int fts_write_charge_status(int status);
-#endif
 
 /**
 * Release all the touches in the linux input subsystem
@@ -4085,12 +4082,6 @@ static void fts_status_event_handler(struct fts_ts_info *info,
 			 "%s %s Echo event of command = %02X %02X %02X %02X %02X %02X\n",
 			 tag, __func__, event[2], event[3], event[4], event[5],
 			 event[6], event[7]);
-		if (event[2] == 0xA2 && event[3] == 0x02 && event[4] == 0x01) {
-			logError(1,
-				 "%s %s Echo event of charge mode command = %02X %02X %02X %02X %02X %02X\n",
-				 tag, __func__, event[2], event[3], event[4], event[5],
-				 event[6], event[7]);
-		}
 		break;
 
 	case EVT_TYPE_STATUS_FORCE_CAL:
@@ -5862,16 +5853,16 @@ static void fts_corner_rejection(bool on, int direction)
 	if (direction == 1) {
 		bdata->cornerzone_filter_hor1[4] = filter_value;
 		bdata->cornerzone_filter_hor1[5] = filter_value;
-		bdata->cornerzone_filter_hor1[GRIP_PARAMETER_NUM * 2 + 3] = bdata->y_max / 10 - filter_value - 1;
+		bdata->cornerzone_filter_hor1[GRIP_PARAMETER_NUM * 2 + 3] = bdata->y_max - filter_value - 1;
 		bdata->cornerzone_filter_hor1[GRIP_PARAMETER_NUM * 2 + 4] = filter_value;
 		for (i = 0; i < GRIP_RECT_NUM * GRIP_PARAMETER_NUM / 3; i += GRIP_PARAMETER_NUM)
 			fts_set_grip_rect((int *)&(bdata->cornerzone_filter_hor1[i]));
 	}
 	if (direction == 3) {
-		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM + 2] = bdata->x_max / 10 - filter_value - 1;
+		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM + 2] = bdata->x_max - filter_value - 1;
 		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM + 5] = filter_value;
-		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM * 3 + 2] = bdata->x_max / 10 - filter_value - 1;
-		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM * 3 + 3] = bdata->y_max / 10 - filter_value - 1;
+		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM * 3 + 2] = bdata->x_max - filter_value - 1;
+		bdata->cornerzone_filter_hor2[GRIP_PARAMETER_NUM * 3 + 3] = bdata->y_max - filter_value - 1;
 		for (i = 0; i < GRIP_RECT_NUM * GRIP_PARAMETER_NUM / 3; i += GRIP_PARAMETER_NUM)
 			fts_set_grip_rect((int *)&(bdata->cornerzone_filter_hor2[i]));
 	}
@@ -6649,11 +6640,8 @@ static struct notifier_block fts_bl_noti_block = {
 static int fts_write_charge_status(int status)
 {
 	u8 charge_disable_cmd[3] = {0xA2, 0x02, 0x00};
-	u8 charge_enable_cmd[3] = {0xA2, 0x02, 0x01};
-#if 0
 	u8 wired_charge_cmd[3] = {0xA2, 0x02, 0x01};
 	u8 wireless_charge_cmd[3] = {0xA2, 0x02, 0x02};
-#endif
 	int res;
 
 	if (!fts_info) {
@@ -6667,13 +6655,6 @@ static int fts_write_charge_status(int status)
 		if (res < OK)
 			logError(1, "%s %s: send charge disable cmd error\n", tag, __func__);
 	}
-	if (status == CHARGING) {
-		res = fts_write_dma_safe(charge_enable_cmd, ARRAY_SIZE(charge_enable_cmd));
-		if (res < OK)
-			logError(1, "%s %s: send charge enable cmd error\n", tag, __func__);
-
-	}
-#if 0
 	if (status == WIRED_CHARGING) {
 		res = fts_write_dma_safe(wired_charge_cmd, ARRAY_SIZE(wired_charge_cmd));
 		if (res < OK)
@@ -6684,30 +6665,21 @@ static int fts_write_charge_status(int status)
 		if (res < OK)
 			logError(1, "%s %s: send wireless charge cmd error\n", tag, __func__);
 	}
-#endif
 	mutex_unlock(&fts_info->charge_lock);
 	return res;
 }
 
 static int fts_get_charging_status()
 {
-#if 0
 	struct power_supply *usb_psy;
 	struct power_supply *dc_psy;
 	union power_supply_propval val;
-	int rc = 0;
-#endif
-#ifdef CONFIG_QGKI_SYSTEM
-	int is_charging = 0;
+	int is_charging = 0, rc = 0;
+
 	is_charging = !!power_supply_is_system_supplied();
 	if (!is_charging)
 		return NOT_CHARGING;
-	else
-		return CHARGING;
-#else
-	return NOT_CHARGING;
-#endif
-#if 0
+
 	dc_psy = power_supply_get_by_name("dc");
 	if (dc_psy) {
 		rc = power_supply_get_property(dc_psy, POWER_SUPPLY_PROP_ONLINE, &val);
@@ -6729,7 +6701,6 @@ static int fts_get_charging_status()
 		logError(1, "%s %s not found usb psy\n", tag, __func__);
 	}
 	return NOT_CHARGING;
-#endif
 }
 
 static void fts_power_supply_work(struct work_struct *work)

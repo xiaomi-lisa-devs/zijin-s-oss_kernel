@@ -419,6 +419,7 @@ struct battery_chg_dev {
 	struct delayed_work		charger_debug_info_print_work;
 	/* To track the driver initialization status */
 	bool				initialized;
+	bool				battery_auth;
 };
 
 static const int battery_prop_map[BATT_PROP_MAX] = {
@@ -2631,7 +2632,7 @@ static ssize_t authentic_store(struct class *c,
 
 	if (kstrtobool(buf, &val))
 		return -EINVAL;
-
+	bcdev->battery_auth = val;
 	pr_err("authentic_store: %d\n", val);
 	rc = write_property_id(bcdev, &bcdev->psy_list[PSY_TYPE_XM],
 				XM_PROP_AUTHENTIC, val);
@@ -4468,6 +4469,7 @@ static void xm_charger_debug_info_print_work(struct work_struct *work)
 	int vbus_vol_uv, ibus_ua;
 	int interval = DISCHARGE_PERIOD_S;
 	union power_supply_propval val = {0, };
+	struct psy_state *pst = &bcdev->psy_list[PSY_TYPE_XM];
 
 	usb_psy = bcdev->psy_list[PSY_TYPE_USB].psy;
 	if (usb_psy != NULL) {
@@ -4493,7 +4495,13 @@ static void xm_charger_debug_info_print_work(struct work_struct *work)
 			ibus_ua = val.intval;
 		else
 			ibus_ua = 0;
-
+		rc = read_property_id(bcdev, pst, XM_PROP_AUTHENTIC);
+		if (!rc && !pst->prop[XM_PROP_AUTHENTIC] && bcdev->battery_auth) {
+			rc = write_property_id(bcdev, &bcdev->psy_list[PSY_TYPE_XM],
+				XM_PROP_AUTHENTIC, bcdev->battery_auth);
+			pr_info("XM_PROP_AUTHENTIC = %d bcdev->battery_auth = %d, re-set battery auth\n", 
+				pst->prop[XM_PROP_AUTHENTIC], bcdev->battery_auth);
+		}
 		pr_err("vbus_vol_uv: %d, ibus_ua: %d\n", vbus_vol_uv, ibus_ua);
 		interval = CHARGING_PERIOD_S;
 	} else {
@@ -4665,7 +4673,7 @@ static int battery_chg_probe(struct platform_device *pdev)
 	INIT_WORK(&bcdev->usb_type_work, battery_chg_update_usb_type_work);
 	atomic_set(&bcdev->state, PMIC_GLINK_STATE_UP);
 	bcdev->dev = dev;
-
+	bcdev->battery_auth = false;
 	client_data.id = MSG_OWNER_BC;
 	client_data.name = "battery_charger";
 	client_data.msg_cb = battery_chg_callback;

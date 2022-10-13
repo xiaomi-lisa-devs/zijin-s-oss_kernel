@@ -117,11 +117,6 @@
 #define FTS_REG_GESTURE_DOUBLETAP_ON        0x01
 #define FTS_REG_GESTURE_FOD_ON              0x02
 #define FTS_REG_GESTURE_SUPPORT             0xCF
-
-#define FTS_REG_SENSIVITY                   0x80
-#define FTS_REG_THDIFF                      0x85
-#define FTS_REG_EDGE_FILTER_EN              0x8c
-#define FTS_REG_EDGE_FILTER_LEVEL           0x8d
 #define FTS_SYSFS_ECHO_ON(buf)      (buf[0] == '1')
 #define FTS_SYSFS_ECHO_OFF(buf)     (buf[0] == '0')
 

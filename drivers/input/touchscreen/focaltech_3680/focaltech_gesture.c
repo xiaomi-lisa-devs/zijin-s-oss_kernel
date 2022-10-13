@@ -359,14 +359,11 @@ int fts_gesture_readdata(struct fts_ts_data *ts_data, u8 *touch_buf)
         return 1;
     }
     if (gesture->gesture_id == GESTURE_SINGLETAP && !(ts_data->gesture_status & 0x02)) {
-        if (ts_data->fod_status != -1 && ts_data->fod_status != 100 && ts_data->nonui_status == 0){
-            FTS_INFO("FOD on support single tap");
-        }else{
-            FTS_INFO("single tap is not enabled!");
-            return 1;
-        }
+        FTS_INFO("single tap is not enabled!");
+        return 1;
     }
-    FTS_DEBUG("gesture_id=%x; DoubleClick:0x24  SingleTap:0x25",gesture->gesture_id);
+    FTS_DEBUG("gesture_id=%d, point_num=%d",
+              gesture->gesture_id, gesture->point_num);
 
     /* save point data,max:6 */
     for (i = 0; i < FTS_GESTURE_POINTS_MAX; i++) {
@@ -414,21 +411,13 @@ int fts_fod_reg_write(u8 mask, bool enable)
     int i;
     u8 state;
     u8 reg_value;
-    u8 reg_value_last_time;
-
 
     for (i = 0; i < 5; i++) {
         fts_read_reg(FTS_REG_GESTURE_SUPPORT, &reg_value);
-        reg_value_last_time = reg_value;
         if (enable)
             reg_value |= mask;
         else
             reg_value &= ~mask;
-        /* If the value in the register is equal to the modified value, skip writing to the register */
-        if(reg_value == reg_value_last_time){
-            FTS_INFO("reg 0xCF do not need to be modified, reg_value = %02X", reg_value);
-            return 0;
-        }
         fts_write_reg(FTS_REG_GESTURE_SUPPORT, reg_value);
         msleep(1);
         fts_read_reg(FTS_REG_GESTURE_SUPPORT, &state);

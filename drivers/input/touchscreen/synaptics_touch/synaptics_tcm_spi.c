@@ -702,7 +702,7 @@ MODULE_DEVICE_TABLE(spi, syna_tcm_id_table);
 #ifdef CONFIG_OF
 static struct of_device_id syna_tcm_of_match_table[] = {
 	{
-		.compatible = "xiaomi,k9e-spi",
+		.compatible = "xiaomi,ts-spi",
 	},
 	{},
 };

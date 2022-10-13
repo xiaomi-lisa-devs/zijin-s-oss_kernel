@@ -1355,12 +1355,7 @@ struct task_struct {
 	 */
 	u64				timer_slack_ns;
 	u64				default_timer_slack_ns;
-#ifdef CONFIG_PERF_CRITICAL_RT_TASK
-	unsigned int    		critical_rt_task;
-#endif
-#ifdef CONFIG_SF_BINDER
-	unsigned int			sf_binder_task;
-#endif
+
 #ifdef CONFIG_PERF_HUMANTASK
 	unsigned int			human_task;
 	unsigned int                    inherit_task;
@@ -1469,7 +1464,6 @@ struct task_struct {
 	unsigned long			lowest_stack;
 	unsigned long			prev_lowest_stack;
 #endif
-
 
 	ANDROID_VENDOR_DATA_ARRAY(1, 3);
 	ANDROID_KABI_RESERVE(1);

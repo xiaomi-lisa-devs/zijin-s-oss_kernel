@@ -142,8 +142,8 @@ struct qcom_glink {
 	struct qcom_glink_pipe *tx_pipe;
 
 	int irq;
-	char irqname[GLINK_NAME_SIZE];
-
+        char irqname[GLINK_NAME_SIZE];
+	  
 	struct kthread_worker kworker;
 	struct task_struct *task;
 

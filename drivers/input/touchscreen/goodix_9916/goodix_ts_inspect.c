@@ -21,7 +21,6 @@
 #include <linux/version.h>
 #include <linux/fs.h>
 #include <asm/uaccess.h>
-#include <linux/string.h>
 
 
 /* test config */
@@ -430,10 +429,9 @@ static int getrid_space(s8* data, s32 len)
 	s32 i;
 	u32 count = 0;
 
-	buf = (char*)vmalloc(len + 5);
-	memset(buf,0,sizeof(*buf));
+	buf = (char*)kzalloc(len + 5, GFP_KERNEL);
 	if (buf == NULL){
-		ts_err("get space vmalloc error");
+		ts_err("get space kzalloc error");
 		return -ESRCH;
 	}
 
@@ -449,7 +447,7 @@ static int getrid_space(s8* data, s32 len)
 	buf[count++] = '\0';
 
 	memcpy(data, buf, count);
-	vfree(buf);
+	kfree(buf);
 
 	return count;
 }
@@ -473,8 +471,7 @@ static int parse_valid_data(char *buf_start, loff_t buf_size,
 		return -EINVAL;
 	}
 
-	row_data = (char*)vmalloc(MAX_LINE_LEN);
-	memset(row_data,0,sizeof(*row_data));
+	row_data = (char *)kzalloc(MAX_LINE_LEN, GFP_KERNEL);
 	if (!row_data) {
 		ts_err("alloc bytes %d failed.", MAX_LINE_LEN);
 		return -ENOMEM;
@@ -489,7 +486,7 @@ static int parse_valid_data(char *buf_start, loff_t buf_size,
 			if (strlen(token) == 0)
 				continue;
 			if (kstrtol(token, 0, &temp_val)) {
-				vfree(row_data);
+				kfree(row_data);
 				return -EINVAL;
 			}
 			data[j++] = (s32)temp_val;
@@ -499,12 +496,12 @@ static int parse_valid_data(char *buf_start, loff_t buf_size,
 		goto_next_line(&ptr);				//next row
 		if(!ptr || (0 == strlen(ptr)) || (ptr >= (buf_start + buf_size))) {
 			ts_info("invalid ptr, return");
-			vfree(row_data);
+			kfree(row_data);
 			row_data = NULL;
 			return -EPERM;
 		}        
 	}
-	vfree(row_data);
+	kfree(row_data);
 	return j;
 }
 
@@ -595,10 +592,9 @@ static int goodix_init_testlimits(struct goodix_ts_test *ts_test)
 		ret = -EINVAL;
 		goto exit_free;
 	}
-	temp_buf = vmalloc(firmware->size + 1);
-	memset(temp_buf,0,sizeof(*temp_buf));
+	temp_buf = kzalloc(firmware->size + 1, GFP_KERNEL);
 	if (!temp_buf) {
-		ts_err("vmalloc bytes failed.");
+		ts_err("kzalloc bytes failed.");
 		ret = -ENOMEM;
 		goto exit_free;
 	}
@@ -704,7 +700,7 @@ static int goodix_init_testlimits(struct goodix_ts_test *ts_test)
 	}
 
 exit_free:
-	vfree(temp_buf);
+	kfree(temp_buf);
 	if (firmware)
 		release_firmware(firmware);
 	return ret;
@@ -902,8 +898,7 @@ static int gdix_check_tx_tx_shortcircut(struct goodix_ts_test *ts_test,
 	u16 self_capdata, short_die_num = 0;
 
 	size = 4 + max_drv_num * 2 + 2;
-	data_buf = vmalloc(size);
-	memset(data_buf,0,sizeof(*data_buf));
+	data_buf = kzalloc(size, GFP_KERNEL);
 	if (!data_buf) {
 		ts_err("Failed to alloc memory");
 		return -ENOMEM;
@@ -971,7 +966,7 @@ static int gdix_check_tx_tx_shortcircut(struct goodix_ts_test *ts_test,
 		data_reg += size;
 	}
 
-	vfree(data_buf);
+	kfree(data_buf);
 	return err;
 }
 
@@ -990,8 +985,7 @@ static int gdix_check_rx_rx_shortcircut(struct goodix_ts_test *ts_test,
 	u16 self_capdata, short_die_num = 0;
 
 	size = 4 + max_sen_num * 2 + 2;
-	data_buf = vmalloc(size);
-	memset(data_buf,0,sizeof(*data_buf));
+	data_buf = kzalloc(size, GFP_KERNEL);
 	if (!data_buf) {
 		ts_err("Failed to alloc memory");
 		return -ENOMEM;
@@ -1055,7 +1049,7 @@ static int gdix_check_rx_rx_shortcircut(struct goodix_ts_test *ts_test,
 		data_reg += size;
 	}
 
-	vfree(data_buf);
+	kfree(data_buf);
 	return err;    
 }
 
@@ -1075,8 +1069,7 @@ static int gdix_check_tx_rx_shortcircut(struct goodix_ts_test *ts_test,
 	u16 self_capdata, short_die_num = 0;
 
 	size = 4 + max_drv_num * 2 + 2;
-	data_buf = vmalloc(size);
-	memset(data_buf,0,sizeof(*data_buf));
+	data_buf = kzalloc(size, GFP_KERNEL);
 	if (!data_buf) {
 		ts_err("Failed to alloc memory");
 		return -ENOMEM;
@@ -1140,7 +1133,7 @@ static int gdix_check_tx_rx_shortcircut(struct goodix_ts_test *ts_test,
 		data_reg += size;
 	}
 
-	vfree(data_buf);
+	kfree(data_buf);
 	return err;    
 }
 
@@ -1210,8 +1203,7 @@ static int gdix_check_gndvdd_shortcircut(struct goodix_ts_test *ts_test)
 	int max_sen_num = ts_test->test_params.params_info->max_sen_num;
 
 	size = (max_drv_num + max_sen_num) * 2 + 2;
-	data_buf = vmalloc(size);
-	memset(data_buf,0,sizeof(*data_buf));
+	data_buf = kzalloc(size, GFP_KERNEL);
 	if (!data_buf) {
 		ts_err("Failed to alloc memory");
 		return -ENOMEM;
@@ -1243,7 +1235,7 @@ static int gdix_check_gndvdd_shortcircut(struct goodix_ts_test *ts_test)
 	}
 
 err_out:
-	vfree(data_buf);
+	kfree(data_buf);
 	return err;
 }
 
@@ -1491,7 +1483,7 @@ static int goodix_cache_rawdata(struct goodix_ts_test *ts_test)
 			cur_ptr += cd->ic_info.misc.fw_attr_len;
 			cur_ptr += cd->ic_info.misc.fw_log_len;
 			memcpy((u8 *)ts_test->rawdata[i].data, cur_ptr + 8,
-					data_size * 2);
+					cd->ic_info.misc.mutual_struct_len - 8);
 		} else {
 			ret = ts_test_read(ts_test, data_addr,
 				(u8 *)ts_test->rawdata[i].data, data_size * sizeof(s16));
@@ -1584,7 +1576,7 @@ static int goodix_cache_self_rawdata(struct goodix_ts_test *ts_test)
 		cur_ptr += cd->ic_info.misc.fw_log_len;
 		cur_ptr += cd->ic_info.misc.mutual_struct_len;
 		memcpy((u8 *)ts_test->self_rawdata.data, cur_ptr + 10,
-				data_size * 2);
+				cd->ic_info.misc.self_struct_len - 10);
 	} else {
 		ret = ts_test_read(ts_test, data_addr,
 			(u8 *)ts_test->self_rawdata.data, data_size * sizeof(s16));
@@ -1661,7 +1653,7 @@ static int goodix_cache_noisedata(struct goodix_ts_test *ts_test)
 			cur_ptr += cd->ic_info.misc.fw_attr_len;
 			cur_ptr += cd->ic_info.misc.fw_log_len;
 			memcpy((u8 *)ts_test->noisedata[cnt].data, cur_ptr + 8,
-					data_size * 2);
+					cd->ic_info.misc.mutual_struct_len - 8);
 		} else {
 			ret = ts_test_read(ts_test, data_addr,
 				(u8 *)ts_test->noisedata[cnt].data, data_size * sizeof(s16));
@@ -1710,7 +1702,7 @@ static int goodix_cache_self_noisedata(struct goodix_ts_test *ts_test)
 		cur_ptr += cd->ic_info.misc.fw_log_len;
 		cur_ptr += cd->ic_info.misc.mutual_struct_len;
 		memcpy((u8 *)ts_test->self_noisedata.data, cur_ptr + 10,
-				data_size * 2);
+				cd->ic_info.misc.self_struct_len - 10);
 	} else {
 		ret = ts_test_read(ts_test, data_addr,
 			(u8 *)ts_test->self_noisedata.data, data_size * sizeof(s16));
@@ -2047,8 +2039,7 @@ static int goodix_save_test_config(struct goodix_ts_test *ts_test,
 		return 0;
 	}
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed");
 		return -ENOMEM;
@@ -2067,7 +2058,7 @@ static int goodix_save_test_config(struct goodix_ts_test *ts_test,
 	}
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;	
 }
 
@@ -2081,8 +2072,7 @@ static int goodix_save_header(struct goodix_ts_test *ts_test,
 	char *data = NULL;
 	struct goodix_ts_core *ts = ts_test->ts;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed");
 		return -ENOMEM;
@@ -2192,7 +2182,7 @@ static int goodix_save_header(struct goodix_ts_test *ts_test,
 	}
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;	
 }
 
@@ -2209,8 +2199,7 @@ static int goodix_save_limits(struct goodix_ts_test *ts_test,
 	int chn2;
 	int r;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2411,7 +2400,7 @@ static int goodix_save_limits(struct goodix_ts_test *ts_test,
 		ts_err("limit write fail.");
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;
 }
 
@@ -2428,8 +2417,7 @@ static int goodix_save_rawdata(struct goodix_ts_test *ts_test,
 	int rx = ts_test->test_params.sen_num;
 	int len = tx * rx;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2471,7 +2459,7 @@ static int goodix_save_rawdata(struct goodix_ts_test *ts_test,
 		ts_err("rawdata write fail.");
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;
 }
 
@@ -2487,8 +2475,7 @@ static int goodix_save_noise_data(struct goodix_ts_test *ts_test, struct file *f
 	int rx = ts_test->test_params.sen_num;
 	int len = tx * rx;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2520,7 +2507,7 @@ static int goodix_save_noise_data(struct goodix_ts_test *ts_test, struct file *f
 		ts_err("noisedata write fail.");
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;	
 }
 
@@ -2534,8 +2521,7 @@ static int goodix_save_self_data(struct goodix_ts_test *ts_test,
 	s16 stat_result[3];
 	int tx = ts_test->test_params.drv_num;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2567,7 +2553,7 @@ static int goodix_save_self_data(struct goodix_ts_test *ts_test,
 		ts_err("rawdata write fail.");
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;
 }
 
@@ -2578,8 +2564,7 @@ static int goodix_save_data(struct goodix_ts_test *ts_test,
 	int bytes = 0;
 	char *data = NULL;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2623,7 +2608,7 @@ static int goodix_save_data(struct goodix_ts_test *ts_test,
 		ts_err("rawdata data record lable fail.");
 
 save_end:
-	vfree(data);
+	kfree(data);
 	return ret;
 }
 
@@ -2635,8 +2620,7 @@ static int goodix_save_tail(struct goodix_ts_test *ts_test,
 	int bytes = 0;
 	char *data = NULL;
 
-	data = vmalloc(MAX_DATA_BUFFER);
-	memset(data,0,sizeof(*data));
+	data = kzalloc(MAX_DATA_BUFFER, GFP_KERNEL);
 	if (!data) {
 		ts_err("alloc memory failed for ");
 		return -ENOMEM;
@@ -2647,7 +2631,7 @@ static int goodix_save_tail(struct goodix_ts_test *ts_test,
 	if (ret < 0)
 		ts_err("tail write failed");
 
-	vfree(data);
+	kfree(data);
 	return ret;
 }
 
@@ -2855,8 +2839,7 @@ static int goodix_do_inspect(struct goodix_ts_core *cd, struct ts_rawdata_info *
 		return -ENODEV;
 	}
 
-	ts_test = vmalloc(sizeof(*ts_test));
-	memset(ts_test,0,sizeof(*ts_test));
+	ts_test = kzalloc(sizeof(*ts_test), GFP_KERNEL);
 	if (!ts_test) {
 		ts_err("Failed to alloc mem");
 		return -ENOMEM;
@@ -2879,7 +2862,7 @@ static int goodix_do_inspect(struct goodix_ts_core *cd, struct ts_rawdata_info *
 	goodix_tptest_finish(ts_test);
 
 exit_finish:
-	vfree(ts_test);
+	kfree(ts_test);
 	return ret;
 }
 
@@ -2891,8 +2874,7 @@ static ssize_t goodix_ts_get_rawdata_show(struct device *dev,
 	struct ts_rawdata_info *info = NULL;
 	struct goodix_ts_core *cd = dev_get_drvdata(dev);
 
-	info = vmalloc(sizeof(*info));
-	memset(info,0,sizeof(*info));
+	info = kzalloc(sizeof(*info), GFP_KERNEL);
 	if (!info) {
 		ts_err("Failed to alloc rawdata info memory");
 		return -ENOMEM;
@@ -2902,7 +2884,7 @@ static ssize_t goodix_ts_get_rawdata_show(struct device *dev,
 
 	ret = snprintf(buf, PAGE_SIZE, "resultInfo: %s", info->result);
 
-	vfree(info);
+	kfree(info);
 	return ret;
 }
 
@@ -2920,13 +2902,7 @@ int goodix_get_rawdata(struct device *dev, struct ts_rawdata_info *info)
 		return -ENODEV;
 	}
 
-	/*
-	*	Apply for contiguous virtual memory
-	*	but physical memory is not necessarily contiguous
-	*/
-	ts_test = vmalloc(sizeof(*ts_test));
-	memset(ts_test,0,sizeof(*ts_test));
-
+	ts_test = kzalloc(sizeof(*ts_test), GFP_KERNEL);
 	if (!ts_test) {
 		ts_err("Failed to alloc mem");
 		return -ENOMEM;
@@ -2949,7 +2925,7 @@ int goodix_get_rawdata(struct device *dev, struct ts_rawdata_info *info)
 	goodix_tptest_finish(ts_test);
 
 exit_finish:
-	vfree(ts_test);
+	kfree(ts_test);
 	return ret;
 }
 

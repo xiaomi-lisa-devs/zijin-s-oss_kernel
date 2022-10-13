@@ -85,7 +85,7 @@
 
 #define RMI_UBL_FN_NUMBER 0x35
 
-#define K9E_ID_DET (336+96)
+#define TS_ID_DET (336+96)
 
 /* #define GRIP_MODE_DEBUG */
 
@@ -6583,8 +6583,8 @@ static int __init syna_tcm_module_init(void)
 {
 	int retval;
 	int gpio_96;
-	gpio_direction_input(K9E_ID_DET);
-	gpio_96 = gpio_get_value(K9E_ID_DET);
+	gpio_direction_input(TS_ID_DET);
+	gpio_96 = gpio_get_value(TS_ID_DET);
 	pr_info("gpio_96 = %d\n",gpio_96);
 	if(gpio_96){
 		pr_info("TP is synaptics");
