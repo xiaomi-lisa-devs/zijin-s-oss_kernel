@@ -3,7 +3,6 @@
  * Interconnect framework core driver
  *
  * Copyright (c) 2017-2019, Linaro Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Author: Georgi Djakov <georgi.djakov@linaro.org>
  */
 

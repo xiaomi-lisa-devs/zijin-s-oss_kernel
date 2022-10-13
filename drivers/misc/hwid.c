@@ -4,7 +4,6 @@
  * which is only used for xiaomi corporation internally.
  *
  * Copyright (c) 2020 xiaomi inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 /*****************************************************************************
@@ -82,17 +81,11 @@ static ssize_t hwid_build_adc_show(struct kobject *kobj,
 const char *product_name_get(void)
 {
 	switch (project){
-		case HARDWARE_PROJECT_J18: return "cetus";
-		case HARDWARE_PROJECT_K1:  return "star";
-		case HARDWARE_PROJECT_K8:  return "odin";
-		case HARDWARE_PROJECT_K2:  return "venus";
-		case HARDWARE_PROJECT_K1A: return "mars";
-		case HARDWARE_PROJECT_K9:  return "renoir";
-		case HARDWARE_PROJECT_K11:
+		case HARDWARE_PROJECT_L9:
 			if ( (uint32_t)CountryIndia == get_hw_country_version())
-				return "haydnin";
+				return "taoyaoin";
 			else
-				return "haydn";
+				return "taoyao";
 		default: return "unknown";
 	}
 }

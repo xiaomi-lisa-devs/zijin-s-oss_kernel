@@ -3,7 +3,6 @@
  * composite.c - infrastructure for Composite USB Gadgets
  *
  * Copyright (C) 2006-2008 David Brownell
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 /* #define VERBOSE_DEBUG */

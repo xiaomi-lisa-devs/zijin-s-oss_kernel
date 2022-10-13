@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2020, Xiaomi, Inc. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #ifndef __AL6021_H__

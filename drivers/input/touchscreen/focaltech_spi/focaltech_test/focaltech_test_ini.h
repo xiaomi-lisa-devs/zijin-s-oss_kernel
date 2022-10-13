@@ -1,6 +1,5 @@
 /************************************************************************
 * Copyright (c) 2012-2020, Focaltech Systems (R)��All Rights Reserved.
-* Copyright (C) 2021 XiaoMi, Inc.
 *
 * File Name: focaltech_test_ini.h
 *
@@ -81,7 +80,6 @@ struct ini_data {
 	"RawDataTest_Min", "RawDataTest_Max", \
 	"RawDataTest_VKey_Check", "RawDataTest_Min_VKey", "RawDataTest_Max_VKey", \
 	"LCD_NoiseTest_Frame", "LCD_NoiseTest_Coefficient", "LCD_NoiseTest_Coefficient_key", \
-	"OpenTest_DifferMin", \
 }
 
 

@@ -1040,13 +1040,13 @@ __releases(fiq->lock)
 	unsigned reqsize = sizeof(ih) + sizeof(arg);
 	int err;
 
-	list_del_init(&req->intr_entry);
 	memset(&ih, 0, sizeof(ih));
 	memset(&arg, 0, sizeof(arg));
 	ih.len = reqsize;
 	ih.opcode = FUSE_INTERRUPT;
 	ih.unique = (req->in.h.unique | FUSE_INT_REQ_BIT);
 	arg.unique = req->in.h.unique;
+	list_del_init(&req->intr_entry);
 
 	spin_unlock(&fiq->lock);
 	if (nbytes < reqsize)
@@ -2265,7 +2265,7 @@ static long fuse_dev_ioctl(struct file *file, unsigned int cmd,
 			}
 		}
 	}
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	else if (cmd == FUSE_DEV_IOC_PASSTHROUGH_OPEN) {
 		struct fuse_dev *fud;
 		struct fuse_passthrough_out pto;

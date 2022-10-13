@@ -3,7 +3,6 @@
  * FocalTech ftxxxx TouchScreen driver.
  *
  * Copyright (c) 2012-2020, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -274,8 +273,14 @@ int fts_ex_mode_recovery(struct fts_ts_data *ts_data)
 		fts_ex_mode_switch(MODE_COVER, ENABLE);
 	}
 
-	if (ts_data->charger_mode) {
+	if (ts_data->charger_mode || ts_data->is_usb_exist) {
 		fts_ex_mode_switch(MODE_CHARGER, ENABLE);
+	}
+
+	if (ts_data->fps_state != 60) {
+		FTS_INFO("config touch work with %d fps", ts_data->fps_state);
+		if (!fts_write_reg(FTS_REG_FPS_VALUE, ts_data->fps_cmd))
+			FTS_INFO("config fps successful");
 	}
 
 	return 0;

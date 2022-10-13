@@ -2,7 +2,6 @@
  * Synaptics TCM touchscreen driver
  *
  * Copyright (C) 2017-2019 Synaptics Incorporated. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Copyright (C) 2017-2019 Scott Lin <scott.lin@tw.synaptics.com>
  *

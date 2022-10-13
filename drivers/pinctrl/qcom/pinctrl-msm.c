@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2013, Sony Mobile Communications AB.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (c) 2013-2021, The Linux Foundation. All rights reserved.
  */
 
@@ -28,7 +27,6 @@
 #include <linux/soc/qcom/irq.h>
 
 #include <linux/soc/qcom/irq.h>
-
 
 #include "../core.h"
 #include "../pinconf.h"
@@ -1313,7 +1311,6 @@ static bool msm_gpio_needs_valid_mask(struct msm_pinctrl *pctrl)
 	return device_property_count_u16(pctrl->dev, "gpios") > 0;
 }
 
-
 static int msm_gpio_init(struct msm_pinctrl *pctrl)
 {
 	struct gpio_chip *chip;
@@ -1348,7 +1345,6 @@ static int msm_gpio_init(struct msm_pinctrl *pctrl)
 	pctrl->irq_chip.irq_set_vcpu_affinity = msm_gpio_irq_set_vcpu_affinity;
 	pctrl->irq_chip.flags = IRQCHIP_MASK_ON_SUSPEND
 				| IRQCHIP_SET_TYPE_MASKED;
-
 
 	dn = of_parse_phandle(pctrl->dev->of_node, "wakeup-parent", 0);
 	if (dn) {
@@ -1582,8 +1578,6 @@ int msm_gpio_mpm_wake_set(unsigned int gpio, bool enable)
 	return 0;
 }
 EXPORT_SYMBOL(msm_gpio_mpm_wake_set);
-
-
 
 int msm_pinctrl_probe(struct platform_device *pdev,
 		      const struct msm_pinctrl_soc_data *soc_data)

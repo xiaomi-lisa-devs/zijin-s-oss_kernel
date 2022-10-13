@@ -12,7 +12,7 @@
 #ifndef pr_fmt
 # define pr_fmt(fmt) "fuse: " fmt
 #endif
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 #include "fuse.h"
 #else
 #include <linux/fuse.h>
@@ -167,7 +167,7 @@ enum {
 
 struct fuse_conn;
 struct fuse_release_args;
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 /**
  * Reference to lower filesystem file for read/write operations handled in
  * passthrough mode
@@ -223,7 +223,7 @@ struct fuse_file {
 		u64 version;
 
 	} readdir;
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	/** Container for data related to the passthrough functionality */
 	struct fuse_passthrough passthrough;
 	#endif
@@ -742,7 +742,7 @@ struct fuse_conn {
 
 	/* Do not show mount options */
 	unsigned int no_mount_options:1;
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	/** Passthrough mode for read/write IO */
 	unsigned int passthrough:1;
 	#endif
@@ -781,7 +781,7 @@ struct fuse_conn {
 
 	/** List of device instances belonging to this connection */
 	struct list_head devices;
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	/** IDR for passthrough requests */
 	struct idr passthrough_req;
 
@@ -1135,7 +1135,7 @@ unsigned int fuse_len_args(unsigned int numargs, struct fuse_arg *args);
  */
 u64 fuse_get_unique(struct fuse_iqueue *fiq);
 void fuse_free_conn(struct fuse_conn *fc);
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 int fuse_passthrough_open(struct fuse_dev *fud,
 			  struct fuse_passthrough_out *pto);
 int fuse_passthrough_setup(struct fuse_conn *fc, struct fuse_file *ff,

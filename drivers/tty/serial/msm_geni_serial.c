@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2016-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/bitmap.h>
@@ -105,6 +104,7 @@
 
 #define UART_OVERSAMPLING	(32)
 #define STALE_TIMEOUT		(16)
+#define SYSTEM_DELAY		(500)
 #define STALE_COUNT		(DEFAULT_BITS_PER_CHAR * STALE_TIMEOUT)
 #define SEC_TO_USEC		(1000000)
 #define STALE_DELAY		(10000) //10msec
@@ -149,31 +149,6 @@
 #define IPC_LOG_MSG(ctx, x...) ipc_log_string(ctx, x)
 #define DMA_RX_BUF_SIZE		(2048)
 #define UART_CONSOLE_RX_WM	(2)
-enum uart_error_code {
-	UART_ERROR_DEFAULT,
-	UART_ERROR_INVALID_FW_LOADED,
-	UART_ERROR_CLK_GET_FAIL,
-	UART_ERROR_SE_CLK_RATE_FIND_FAIL,
-	UART_ERROR_SE_RESOURCES_INIT_FAIL,
-	UART_ERROR_SE_RESOURCES_ON_FAIL,
-	UART_ERROR_SE_RESOURCES_OFF_FAIL,
-	UART_ERROR_TX_DMA_MAP_FAIL,
-	UART_ERROR_TX_CANCEL_FAIL,
-	UART_ERROR_TX_ABORT_FAIL,
-	UART_ERROR_TX_FSM_RESET_FAIL,
-	UART_ERROR_RX_CANCEL_FAIL,
-	UART_ERROR_RX_ABORT_FAIL,
-	UART_ERROR_RX_FSM_RESET_FAIL,
-	UART_ERROR_RX_TTY_INSET_FAIL,
-	UART_ERROR_ILLEGAL_INTERRUPT,
-	UART_ERROR_BUFFER_OVERRUN,
-	UART_ERROR_RX_PARITY_ERROR,
-	UART_ERROR_RX_BREAK_ERROR,
-	UART_ERROR_RX_SBE_ERROR,
-	SOC_ERROR_START_TX_IOS_SOC_RFR_HIGH
-};
-
-
 enum uart_error_code {
 	UART_ERROR_DEFAULT,
 	UART_ERROR_INVALID_FW_LOADED,
@@ -315,16 +290,6 @@ static bool msm_geni_serial_spinlocked(struct uart_port *uport)
 
 	return !locked;
 }
-static void msm_geni_update_uart_error_code(struct msm_geni_serial_port *port,
-	enum uart_error_code uart_error_code)
-{
-	if (!port->is_console && !port->uart_error) {
-		port->uart_error = uart_error_code;
-		IPC_LOG_MSG(port->ipc_log_misc,
-			"%s: uart_error_code:%d\n", __func__, port->uart_error);
-	}
-}
-
 
 /*
  * The below API is required to pass UART error code to BT HOST.
@@ -688,15 +653,6 @@ static int msm_geni_serial_ioctl(struct uart_port *uport, unsigned int cmd,
 		ret = uart_error;
 		break;
 	}
-	case MSM_GENI_SERIAL_TIOCFAULT: {
-		uart_error = port->uart_error;
-		port->uart_error = UART_ERROR_DEFAULT;
-		IPC_LOG_MSG(port->ipc_log_misc,
-				"%s:TIOCFAULT - uart_error_set:%d new_uart_error:%d\n",
-				__func__, uart_error, port->uart_error);
-		ret = uart_error;
-		break;
-	}
 	default:
 		break;
 	}
@@ -753,10 +709,7 @@ static unsigned int msm_geni_serial_get_mctrl(struct uart_port *uport)
 		mctrl |= TIOCM_CTS;
 	else
 		msm_geni_update_uart_error_code(port, SOC_ERROR_START_TX_IOS_SOC_RFR_HIGH);
-<<<<<<< HEAD
-=======
 
->>>>>>> e898dea27d8ab638b7989f0e94a9602906107f46
 	IPC_LOG_MSG(port->ipc_log_misc, "%s: geni_ios:0x%x, mctrl:0x%x\n",
 			__func__, geni_ios, mctrl);
 	return mctrl;
@@ -1245,10 +1198,7 @@ static int msm_geni_serial_prep_dma_tx(struct uart_port *uport)
 	} else {
 		IPC_LOG_MSG(msm_port->ipc_log_misc,
 		    "%s: TX DMA map Fail %d\n", __func__, ret);
-<<<<<<< HEAD
-=======
 
->>>>>>> e898dea27d8ab638b7989f0e94a9602906107f46
 		msm_geni_update_uart_error_code(msm_port, UART_ERROR_TX_DMA_MAP_FAIL);
 		geni_write_reg_nolog(0, uport->membase, SE_UART_TX_TRANS_LEN);
 		msm_port->m_cmd_done = false;
@@ -1271,6 +1221,7 @@ static int msm_geni_serial_prep_dma_tx(struct uart_port *uport)
 			IPC_LOG_MSG(msm_port->ipc_log_misc,
 			"%s: tx_cancel failed 0x%x\n", __func__,
 			geni_read_reg_nolog(uport->membase, SE_GENI_STATUS));
+
 			msm_geni_update_uart_error_code(msm_port, UART_ERROR_TX_CANCEL_FAIL);
 			msm_port->m_cmd_done = false;
 			reinit_completion(&msm_port->m_cmd_timeout);
@@ -1431,6 +1382,7 @@ static void stop_tx_sequencer(struct uart_port *uport)
 		__func__, geni_read_reg_nolog(uport->membase, SE_GENI_STATUS));
 		IPC_LOG_MSG(port->ipc_log_misc, "%s: tx_cancel failed 0x%x\n",
 		__func__, geni_read_reg_nolog(uport->membase, SE_GENI_STATUS));
+
 		msm_geni_update_uart_error_code(port, UART_ERROR_TX_CANCEL_FAIL);
 		port->m_cmd_done = false;
 		reinit_completion(&port->m_cmd_timeout);
@@ -1461,7 +1413,7 @@ static void stop_tx_sequencer(struct uart_port *uport)
 
 			timeout = geni_wait_for_cmd_done(uport,
 							 is_irq_masked);
-			if (timeout) {
+			if (timeout){
 				IPC_LOG_MSG(port->ipc_log_misc,
 				"%s: tx fsm reset failed\n", __func__);
 				msm_geni_update_uart_error_code(port, UART_ERROR_TX_FSM_RESET_FAIL);
@@ -3082,6 +3034,12 @@ static void msm_geni_serial_cons_pm(struct uart_port *uport,
 {
 	struct msm_geni_serial_port *msm_port = GET_DEV_PORT(uport);
 
+#ifdef CONFIG_FASTBOOT_CMD_CTRL_UART
+	if (!is_early_cons_enabled) {
+		pr_info("ignore console pm\n");
+		return;
+	}
+#endif
 	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF) {
 		se_geni_resources_on(&msm_port->serial_rsc);
 		atomic_set(&msm_port->is_clock_off, 0);
@@ -3544,6 +3502,7 @@ static int msm_geni_serial_probe(struct platform_device *pdev)
 	device_create_file(uport->dev, &dev_attr_ver_info);
 	msm_geni_serial_debug_init(uport, is_console);
 	dev_port->port_setup = false;
+
 	dev_port->uart_error = UART_ERROR_DEFAULT;
 	ret = msm_geni_serial_get_ver_info(uport);
 	if (ret) {

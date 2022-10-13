@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2012-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/debugfs.h>
@@ -1194,7 +1193,6 @@ static irqreturn_t qpnp_kpdpwr_bark_irq(int irq, void *_pon)
 	in_long_press = 1;
 #endif
 
-	kthread_unpark(pon->longpress_task);
 	wake_up_process(pon->longpress_task);
 	pon->time_kpdpwr_bark = ktime_get();
 
@@ -1608,7 +1606,6 @@ static int qpnp_pon_config_kpdpwr_init(struct qpnp_pon *pon,
 			return cfg->bark_irq;
 		}
 		sched_setscheduler(pon->longpress_task, SCHED_FIFO, &param);
-		kthread_park(pon->longpress_task);
 	}
 
 	if (pon->pon_ver == QPNP_PON_GEN1_V1) {

@@ -1446,7 +1446,6 @@ error:
 static void spmi_pmic_arb_debugfs_init(struct spmi_pmic_arb *pmic_arb) { }
 #endif
 
-
 static int spmi_pmic_arb_probe(struct platform_device *pdev)
 {
 	struct spmi_pmic_arb *pmic_arb;

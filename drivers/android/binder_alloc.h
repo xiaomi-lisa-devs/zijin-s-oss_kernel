@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 /*
  * Copyright (C) 2017 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #ifndef _LINUX_BINDER_ALLOC_H

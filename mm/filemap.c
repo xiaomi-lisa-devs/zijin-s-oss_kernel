@@ -3,7 +3,6 @@
  *	linux/mm/filemap.c
  *
  * Copyright (C) 1994-1999  Linus Torvalds
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 /*

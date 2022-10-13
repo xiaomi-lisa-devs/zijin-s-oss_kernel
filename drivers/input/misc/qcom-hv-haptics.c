@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/atomic.h>
@@ -2833,9 +2832,9 @@ static irqreturn_t fifo_empty_irq_handler(int irq, void *data)
 		 * memory, defer the stop into erase() function.
 		 */
 		num = haptics_get_available_fifo_memory(chip);
-		if (num != MAX_FIFO_SAMPLES(chip)) {
+		if (num != get_max_fifo_samples(chip)) {
 			dev_dbg(chip->dev, "%d FIFO samples still in playing\n",
-					MAX_FIFO_SAMPLES(chip) - num);
+					get_max_fifo_samples(chip) - num);
 			goto unlock;
 		}
 
@@ -3933,7 +3932,7 @@ static int haptics_get_revision(struct haptics_chip *chip)
 			return rc;
 
 		chip->hbst_revision = (val[1] << 8) | val[0];
-		dev_dbg(chip->dev, "haptics revision: HAP_CFG %#x, HAP_PTN %#x, HAP_HBST %#x\n",
+		dev_info(chip->dev, "haptics revision: HAP_CFG %#x, HAP_PTN %#x, HAP_HBST %#x\n",
 			chip->cfg_revision, chip->ptn_revision, chip->hbst_revision);
 	}
 
@@ -4067,7 +4066,9 @@ static int haptics_parse_dt(struct haptics_chip *chip)
 #ifdef CONFIG_TARGET_PRODUCT_HAYDN
 	config->vmax_mv = 1200;
 #endif
-
+#ifdef CONFIG_TARGET_PRODUCT_VILI
+	config->vmax_mv = 1300;
+#endif
 	config->fifo_empty_thresh = get_fifo_empty_threshold(chip);
 	of_property_read_u32(node, "qcom,fifo-empty-threshold",
 			&config->fifo_empty_thresh);

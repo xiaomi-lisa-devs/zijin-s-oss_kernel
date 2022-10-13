@@ -1,6 +1,5 @@
 /*
  * Copyright (c) Xiaomi Technologies Co., Ltd. 2020. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * File name: debug_policy_status.c
  * Descrviption: get debug policy flag function.

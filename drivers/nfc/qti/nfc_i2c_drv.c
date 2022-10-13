@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
- * Copyright (c) 2015-2020, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
+ * Copyright (c) 2015-2021, The Linux Foundation. All rights reserved.
  */
 
 #include "nfc_common.h"
@@ -54,11 +53,15 @@ static irqreturn_t i2c_irq_handler(int irq, void *dev_id)
 {
 	struct nfc_dev *nfc_dev = dev_id;
 	struct i2c_dev *i2c_dev = &nfc_dev->i2c_dev;
+	unsigned long flags;
 
 	if (device_may_wakeup(&i2c_dev->client->dev))
 		pm_wakeup_event(&i2c_dev->client->dev, WAKEUP_SRC_TIMEOUT);
 
 	i2c_disable_irq(nfc_dev);
+	spin_lock_irqsave(&i2c_dev->irq_enabled_lock, flags);
+	i2c_dev->count_irq++;
+	spin_unlock_irqrestore(&i2c_dev->irq_enabled_lock, flags);
 	wake_up(&nfc_dev->read_wq);
 
 	return IRQ_HANDLED;

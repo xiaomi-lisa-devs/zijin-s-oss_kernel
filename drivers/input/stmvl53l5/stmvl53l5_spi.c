@@ -2,7 +2,6 @@
 * This file is part of VL53L5 Kernel Driver
 *
 * Copyright (C) 2020, STMicroelectronics - All Rights Reserved
-* Copyright (C) 2021 XiaoMi, Inc.
 *
 * License terms: STMicroelectronics Proprietary in accordance with licensing
 * terms at www.st.com/sla0081

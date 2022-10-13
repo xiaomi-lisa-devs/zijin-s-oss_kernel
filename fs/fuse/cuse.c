@@ -3,7 +3,6 @@
  * CUSE: Character device in Userspace
  *
  * Copyright (C) 2008-2009  SUSE Linux Products GmbH
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2008-2009  Tejun Heo <tj@kernel.org>
  *
  * CUSE enables character devices to be implemented from userland much
@@ -35,7 +34,7 @@
 
 #define pr_fmt(fmt) "CUSE: " fmt
 
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 #include "fuse.h"
 #else
 #include <linux/fuse.h>

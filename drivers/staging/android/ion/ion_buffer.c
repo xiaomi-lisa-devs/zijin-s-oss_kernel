@@ -3,7 +3,6 @@
  * ION Memory Allocator - buffer interface
  *
  * Copyright (c) 2019, Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/mm.h>

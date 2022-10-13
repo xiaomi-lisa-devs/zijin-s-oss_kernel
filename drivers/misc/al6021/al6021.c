@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2020, Xiaomi, Inc. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/init.h>

@@ -3,7 +3,6 @@
  * ION Memory Allocator - Internal header
  *
  * Copyright (C) 2019 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #ifndef _ION_PRIVATE_H

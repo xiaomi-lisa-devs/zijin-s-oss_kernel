@@ -4,7 +4,6 @@
  *	    for Non-CPU Devices.
  *
  * Copyright (C) 2011 Samsung Electronics
- * Copyright (C) 2021 XiaoMi, Inc.
  *	MyungJoo Ham <myungjoo.ham@samsung.com>
  */
 

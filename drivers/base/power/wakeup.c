@@ -3,7 +3,6 @@
  * drivers/base/power/wakeup.c - System wakeup events framework
  *
  * Copyright (c) 2010 Rafael J. Wysocki <rjw@sisk.pl>, Novell Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 #define pr_fmt(fmt) "PM: " fmt
 

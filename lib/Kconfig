@@ -27,10 +27,6 @@ config PASSTHROUGH_SYSTEM
         bool "passthrough config"
         default n
 
-config REGION_IS_CN
-	bool "if region is China"
-	default n
-
 config PACKING
 	bool "Generic bitfield packing and unpacking"
 	default n

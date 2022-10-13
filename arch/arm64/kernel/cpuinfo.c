@@ -3,7 +3,6 @@
  * Record and handle CPU attributes.
  *
  * Copyright (C) 2014 ARM Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 #include <asm/arch_timer.h>
 #include <asm/cache.h>

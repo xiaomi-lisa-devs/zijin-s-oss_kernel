@@ -3,7 +3,6 @@
  * fs/f2fs/inode.c
  *
  * Copyright (c) 2012 Samsung Electronics Co., Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  *             http://www.samsung.com/
  */
 #include <linux/fs.h>
@@ -718,10 +717,6 @@ void f2fs_evict_inode(struct inode *inode)
 
 	f2fs_destroy_extent_tree(inode);
 
-#ifdef CONFIG_F2FS_CP_OPT
-	f2fs_remove_xattr_set_inode(inode);
-#endif
-
 	if (inode->i_nlink || is_bad_inode(inode))
 		goto no_delete;
 
@@ -838,7 +833,7 @@ void f2fs_handle_failed_inode(struct inode *inode)
 	 * so we can prevent losing this orphan when encoutering checkpoint
 	 * and following suddenly power-off.
 	 */
-	err = f2fs_get_node_info(sbi, inode->i_ino, &ni);
+	err = f2fs_get_node_info(sbi, inode->i_ino, &ni, false);
 	if (err) {
 		set_sbi_flag(sbi, SBI_NEED_FSCK);
 		f2fs_warn(sbi, "May loss orphan inode, run fsck to fix.");

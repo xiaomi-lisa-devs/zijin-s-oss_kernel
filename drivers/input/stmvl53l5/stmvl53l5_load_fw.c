@@ -1,6 +1,5 @@
 /**************************************************************************
  * Copyright (c) 2016, STMicroelectronics - All Rights Reserved
- * Copyright (C) 2021 XiaoMi, Inc.
 
  License terms: BSD 3-clause "New" or "Revised" License.
 

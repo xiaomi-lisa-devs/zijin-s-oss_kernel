@@ -3,7 +3,6 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2012-2020, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -362,14 +361,35 @@ int fts_gesture_suspend(struct fts_ts_data *ts_data)
 {
 	int i = 0;
 	u8 state = 0xFF;
+	u8 cmd = 0xFF;
 
 	FTS_FUNC_ENTER();
 	if (enable_irq_wake(ts_data->irq)) {
 		FTS_DEBUG("enable_irq_wake(irq:%d) fail", ts_data->irq);
 	}
 
+	FTS_INFO("gesture state:0x%02X", ts_data->gesture_status);
+	switch (ts_data->gesture_status)
+	{
+	case 0x00:
+		cmd = 0x00;
+		break;
+	case 0x01:
+		cmd = 0x10;
+		break;
+	case 0x02:
+		cmd = 0x80;
+		break;
+	case 0x03:
+		cmd = 0x90;
+		break;
+	default:
+		cmd = 0xFF;
+		break;
+	}
+
 	for (i = 0; i < 5; i++) {
-		fts_write_reg(0xD1, 0xFF);
+		fts_write_reg(0xD1, cmd);
 		fts_write_reg(0xD2, 0xFF);
 		fts_write_reg(0xD5, 0xFF);
 		fts_write_reg(0xD6, 0xFF);

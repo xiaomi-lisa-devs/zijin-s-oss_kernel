@@ -44,6 +44,7 @@
   wakeup_source_add
   wakeup_source_create
   mipi_dsi_dcs_read
+  mipi_dsi_dcs_write
 
 # required by exfat.ko
   block_write_full_page
@@ -109,6 +110,9 @@
 # required by goodix_core.ko
   filp_close
   filp_open
+  strncat
+  single_open_size
+  input_mt_sync_frame
 
 # required by sr100.ko
   spi_bus_type
@@ -125,5 +129,5 @@ class_create_file_ns
 class_remove_file
 class_create_file
 
-# required by incrementalfs.ko
-  revert_creds
+# required by synaptics_tcm_testing.ko
+__kernel_write

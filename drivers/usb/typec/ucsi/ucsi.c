@@ -3,7 +3,6 @@
  * USB Type-C Connector System Software Interface driver
  *
  * Copyright (C) 2017, Intel Corporation
- * Copyright (C) 2021 XiaoMi, Inc.
  * Author: Heikki Krogerus <heikki.krogerus@linux.intel.com>
  */
 
@@ -768,6 +767,7 @@ static int ucsi_pr_swap(struct typec_port *port, enum typec_role role)
 	if (cur_role == role)
 		goto out_unlock;
 
+	pr_info("num = %d\n", con->num);
 	command = UCSI_SET_PDR | UCSI_CONNECTOR_NUMBER(con->num);
 	command |= UCSI_SET_PDR_ROLE(role);
 	command |= UCSI_SET_PDR_ACCEPT_ROLE_SWAPS;

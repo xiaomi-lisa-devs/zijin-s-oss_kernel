@@ -2,7 +2,6 @@
 
 /*
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #define pr_fmt(fmt) "%s: " fmt, KBUILD_MODNAME
@@ -210,7 +209,6 @@ void msm_rpmh_master_stats_update(void)
 	msm_rpmh_apss_master_stats_update(profile_unit);
 }
 EXPORT_SYMBOL(msm_rpmh_master_stats_update);
-
 
 static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 {

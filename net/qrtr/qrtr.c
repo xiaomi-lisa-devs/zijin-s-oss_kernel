@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2015, Sony Mobile Communications Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
- * Copyright (c) 2013, 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013, 2018-2019, 2021, The Linux Foundation. All rights reserved.
  */
 #include <linux/kthread.h>
 #include <linux/module.h>
@@ -25,20 +24,8 @@
 
 #define QRTR_LOG_PAGE_CNT 4
 
-#ifdef CONFIG_DEBUG_POWER_MI
-#define QRTR_INFO(ctx, x, ...)				\
-	do { \
-		ipc_log_string(ctx, x, ##__VA_ARGS__); \
-		if (qrtr_first_msg) \
-		{ \
-			qrtr_first_msg = 0; \
-			pr_info(x, ##__VA_ARGS__); \
-		} \
-	}while(0)
-#else
 #define QRTR_INFO(ctx, x, ...)				\
 	ipc_log_string(ctx, x, ##__VA_ARGS__)
-#endif
 
 #define QRTR_PROTO_VER_1 1
 #define QRTR_PROTO_VER_2 3
@@ -1820,6 +1807,11 @@ static int qrtr_recvmsg(struct socket *sock, struct msghdr *msg,
 	rc = copied;
 
 	if (addr) {
+		/* There is an anonymous 2-byte hole after sq_family,
+		 * make sure to clear it.
+		 */
+		memset(addr, 0, sizeof(*addr));
+
 		addr->sq_family = AF_QIPCRTR;
 		addr->sq_node = cb->src_node;
 		addr->sq_port = cb->src_port;

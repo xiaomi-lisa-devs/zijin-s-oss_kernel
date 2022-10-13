@@ -1,9 +1,9 @@
+// SPDX-License-Identifier: GPL-2.0-only
 /* binder.c
  *
  * Android IPC Subsystem
  *
  * Copyright (C) 2007-2008 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 /*
@@ -225,6 +225,7 @@ enum {
 	BINDER_LOOPER_STATE_WAITING     = 0x10,
 	BINDER_LOOPER_STATE_POLL        = 0x20,
 };
+
 
 /**
  * binder_proc_lock() - Acquire outer lock for given binder_proc
@@ -696,12 +697,24 @@ static void binder_do_set_priority(struct task_struct *task,
 	if (verify && is_rt_policy(policy) && !has_cap_nice) {
 		long max_rtprio = task_rlimit(task, RLIMIT_RTPRIO);
 
+#ifdef CONFIG_PERF_CRITICAL_RT_TASK
+		unsigned int critical_rt_task = task->group_leader->critical_rt_task;
+		if (!critical_rt_task) {
+			if (max_rtprio == 0) {
+				policy = SCHED_NORMAL;
+				priority = MIN_NICE;
+			} else if (priority > max_rtprio) {
+				priority = max_rtprio;
+			}
+		}
+#else
 		if (max_rtprio == 0) {
 			policy = SCHED_NORMAL;
 			priority = MIN_NICE;
 		} else if (priority > max_rtprio) {
 			priority = max_rtprio;
 		}
+#endif
 	}
 
 	if (verify && is_fair_policy(policy) && !has_cap_nice) {
@@ -3891,6 +3904,8 @@ static int binder_wait_for_work(struct binder_thread *thread,
 		prepare_to_wait(&thread->wait, &wait, TASK_INTERRUPTIBLE);
 		if (binder_has_work_ilocked(thread, do_proc_work))
 			break;
+
+
 		if (do_proc_work)
 			list_add(&thread->waiting_thread_node,
 				 &proc->waiting_threads);
@@ -3953,6 +3968,7 @@ static int binder_apply_fd_fixups(struct binder_proc *proc,
 			break;
 		}
 	}
+
 	list_for_each_entry_safe(fixup, tmp, &t->fd_fixups, fixup_entry) {
 		if (fixup->file) {
 			fput(fixup->file);
@@ -3986,7 +4002,9 @@ static int binder_thread_read(struct binder_proc *proc,
 
 	int ret = 0;
 	int wait_for_proc_work;
-
+#ifdef CONFIG_SF_BINDER
+	unsigned int flag = current->group_leader->sf_binder_task;
+#endif
 	if (*consumed == 0) {
 		if (put_user(BR_NOOP, (uint32_t __user *)ptr))
 			return -EFAULT;
@@ -4012,6 +4030,12 @@ retry:
 						 binder_stop_on_user_error < 2);
 		}
 		trace_android_vh_binder_restore_priority(NULL, current);
+#ifdef CONFIG_SF_BINDER
+		if (flag) {
+			proc->default_priority.sched_policy = current->policy;
+			proc->default_priority.prio = current->normal_prio;
+		}
+#endif
 		binder_restore_priority(current, proc->default_priority);
 	}
 
@@ -5058,6 +5082,17 @@ static int binder_open(struct inode *nodp, struct file *filp)
 		proc->default_priority.prio = NICE_TO_PRIO(0);
 	}
 
+#ifdef CONFIG_PERF_CRITICAL_RT_TASK
+	if ((strncmp(proc->tsk->comm, "com.miui.home", strlen("com.miui.home")) == 0) ||
+		(strncmp(proc->tsk->comm, "ndroid.systemui", strlen("ndroid.systemui")) == 0)) {
+		proc->tsk->critical_rt_task = 1;
+	}
+#endif
+#ifdef CONFIG_SF_BINDER
+	if (strncmp(proc->tsk->comm,"surfaceflinger",strlen("surfaceflinger")) == 0) {
+		proc->tsk->sf_binder_task = 1;
+	}
+#endif
 	/* binderfs stashes devices in i_private */
 	if (is_binderfs_device(nodp)) {
 		binder_dev = nodp->i_private;
@@ -5160,6 +5195,7 @@ static int binder_open(struct inode *nodp, struct file *filp)
 	//END
 	return 0;
 }
+
 
 static int binder_flush(struct file *filp, fl_owner_t id)
 {

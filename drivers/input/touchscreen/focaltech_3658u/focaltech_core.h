@@ -3,7 +3,6 @@
  * FocalTech TouchScreen driver.
  *
  * Copyright (c) 2012-2020, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -120,7 +119,7 @@
 #define SPI_CMD_BYTE                        4
 #define SPI_CRC_BYTE                        2
 #define SPI_DUMMY_BYTE                      3
-#define SPI_HEADER_BYTE ((SPI_CMD_BYTE) + (SPI_DUMMY_BYTE) + (SPI_CRC_BYTE))
+#define SPI_HEADER_BYTE                     ((SPI_CMD_BYTE) + (SPI_DUMMY_BYTE) + (SPI_CRC_BYTE))
 /*(FT5652 MAX 26)*/
 #define HT_HAL_ROW_NUM                      16
 /*(FT5652 MAX 42)*/
@@ -128,6 +127,17 @@
 #define HT_HAL_NODE_NUM                     ((HT_HAL_ROW_NUM) * (HT_HAL_COL_NUM))
 #define HT_HAL_SNODE_NUM                    ((HT_HAL_ROW_NUM) + (HT_HAL_COL_NUM))
 #define HT_CMD_GET_FRAME                    0x3A
+
+#define FTS_DIFF_DATA_LEN                   ((HT_HAL_NODE_NUM * 2) + 1)
+
+#define PANEL_ORIENTATION_DEGREE_0          0	/* normal portrait orientation */
+#define PANEL_ORIENTATION_DEGREE_90         1	/* anticlockwise 90 degrees */
+#define PANEL_ORIENTATION_DEGREE_180        2	/* anticlockwise 180 degrees */
+#define PANEL_ORIENTATION_DEGREE_270        3	/* anticlockwise 270 degrees */
+
+#define TOUCH_NAME    "FTS_TS"
+#define TOUCH_UTC_ERROR(fmt, ...)  \
+		mi_touch_printk_utc(KERN_INFO, "[error]" fmt, ##__VA_ARGS__)
 
 struct tp_raw {
 	uint16_t frm_idx;
@@ -167,7 +177,6 @@ struct ftxxxx_proc {
 };
 
 #define FOCAL_MAX_STR_LABLE_LEN		32
-
 struct fts_ts_platform_data {
 	char avdd_name[FOCAL_MAX_STR_LABLE_LEN];
 	char iovdd_name[FOCAL_MAX_STR_LABLE_LEN];
@@ -207,7 +216,7 @@ struct fts_hw_info {
 	uint16_t *scan_freq_val;
 	uint8_t report_rate_num;
 	uint16_t *report_rate_val;
-} ;
+};
 
 struct fts_ts_data {
 	struct i2c_client *client;
@@ -264,20 +273,26 @@ struct fts_ts_data {
 	struct pinctrl_state *pins_suspend;
 	struct pinctrl_state *pins_release;
 #endif
-#if defined(CONFIG_FB) || defined(CONFIG_DRM)
+#if defined(CONFIG_DRM) || defined(CONFIG_FB)
 	struct notifier_block fb_notif;
 #elif defined(CONFIG_HAS_EARLYSUSPEND)
 	struct early_suspend early_suspend;
 #endif
 	struct dentry *tpdbg_dentry;
 	bool poweroff_on_sleep;
-	bool gamemode_enabled;
 	u8 gesture_status;
 	struct mutex cmd_update_mutex;
 	int palm_sensor_switch;
 	struct work_struct power_supply_work;
 	struct notifier_block power_supply_notifier;
 	bool is_usb_exist;
+	int clicktouch_count;
+	int clicktouch_num;
+	bool clicktouch_enable;
+	u8 fps_cmd;
+	u8 fps_state;
+	u8 freq_val1;
+	u8 freq_val2;
 };
 
 enum GESTURE_MODE_TYPE {

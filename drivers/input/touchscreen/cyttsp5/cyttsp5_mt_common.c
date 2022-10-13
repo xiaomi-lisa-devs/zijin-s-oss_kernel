@@ -10,7 +10,6 @@
  * CYTT31XXX
  *
  * Copyright (C) 2015 Parade Technologies
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2012-2015 Cypress Semiconductor
  *
  * This program is free software; you can redistribute it and/or
@@ -626,6 +625,7 @@ static int cyttsp5_setup_input_device(struct device *dev)
 
 #ifdef EASYWAKE_TSG6
 	input_set_capability(md->input, EV_KEY, KEY_WAKEUP);
+#if 0
 	input_set_capability(md->input, EV_KEY, KEY_F2);
 	input_set_capability(md->input, EV_KEY, KEY_F3);
 	input_set_capability(md->input, EV_KEY, KEY_F4);
@@ -633,6 +633,7 @@ static int cyttsp5_setup_input_device(struct device *dev)
 	input_set_capability(md->input, EV_KEY, KEY_F6);
 	input_set_capability(md->input, EV_KEY, KEY_F7);
 	input_set_capability(md->input, EV_KEY, KEY_F8);
+#endif
 #endif
 	return rc;
 }

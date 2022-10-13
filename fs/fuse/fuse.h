@@ -1,4 +1,4 @@
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 /* SPDX-License-Identifier: ((GPL-2.0 WITH Linux-syscall-note) OR BSD-2-Clause) */
 /*
     This file defines the kernel interface of FUSE

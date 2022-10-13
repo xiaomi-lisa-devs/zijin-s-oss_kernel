@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2017-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #define pr_fmt(fmt) "icnss2_qmi: " fmt
@@ -21,6 +20,7 @@
 #include <linux/thread_info.h>
 #include <linux/firmware.h>
 #include <linux/soc/qcom/qmi.h>
+#include <linux/hwid.h>
 #include <linux/platform_device.h>
 #include <soc/qcom/icnss2.h>
 #include <soc/qcom/service-locator.h>
@@ -39,6 +39,11 @@
 #define BDF_FILE_NAME_PREFIX		"bdwlan"
 #define ELF_BDF_FILE_NAME		"bdwlan.elf"
 #define ELF_BDF_FILE_NAME_PREFIX	"bdwlan.e"
+
+#define ELF_BDF_FILE_NAME_L9            "bd_l9.elf"
+#define ELF_BDF_FILE_NAME_L9_GLOBAL     "bd_l9gl.elf"
+#define ELF_BDF_FILE_NAME_L9_INDIA      "bd_l9in.elf"
+
 #define BIN_BDF_FILE_NAME		"bdwlan.bin"
 #define BIN_BDF_FILE_NAME_PREFIX	"bdwlan.b"
 #define REGDB_FILE_NAME			"regdb.bin"
@@ -932,11 +937,26 @@ static int icnss_get_bdf_file_name(struct icnss_priv *priv,
 {
 	char filename_tmp[ICNSS_MAX_FILE_NAME];
 	int ret = 0;
+	int hw_platform_ver = -1;
+	uint32_t hw_country_ver = 0;
+	hw_platform_ver = get_hw_version_platform();
+	hw_country_ver = get_hw_country_version();
 
 	switch (bdf_type) {
 	case ICNSS_BDF_ELF:
-		if (priv->board_id == 0xFF)
-			snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
+		if (priv->board_id == 0xFF) {
+			if (hw_platform_ver == HARDWARE_PROJECT_L9) {
+				if ((uint32_t)CountryGlobal == hw_country_ver) {
+					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9_GLOBAL);
+				} else if ((uint32_t)CountryIndia == hw_country_ver) {
+					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9_INDIA);
+				} else {
+					snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME_L9);
+				}
+			} else {
+				snprintf(filename_tmp, filename_len, ELF_BDF_FILE_NAME);
+			}
+		}
 		else if (priv->board_id < 0xFF)
 			snprintf(filename_tmp, filename_len,
 				 ELF_BDF_FILE_NAME_PREFIX "%02x",

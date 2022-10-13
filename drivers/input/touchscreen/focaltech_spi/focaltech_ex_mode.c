@@ -3,7 +3,6 @@
  * FocalTech ftxxxx TouchScreen driver.
  *
  * Copyright (c) 2012-2020, Focaltech Ltd. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -95,11 +94,6 @@ static int fts_ex_mode_switch(enum _ex_mode mode, u8 value)
 	}
 
 	return ret;
-}
-
-int fts_charger_mode_set(u8 value)
-{
-	return fts_ex_mode_switch(MODE_CHARGER, value);
 }
 
 static ssize_t fts_glove_mode_show(

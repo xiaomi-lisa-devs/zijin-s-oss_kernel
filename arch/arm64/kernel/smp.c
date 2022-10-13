@@ -4,7 +4,6 @@
  * Based on arch/arm/kernel/smp.c
  *
  * Copyright (C) 2012 ARM Ltd.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <linux/acpi.h>

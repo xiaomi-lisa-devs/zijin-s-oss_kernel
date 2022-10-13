@@ -7,6 +7,12 @@ config FINGERPRINT_FP_VREG_CONTROL
 	---help---
 	  Say Y here to enable fp_vdd_vreg regulator by device driver
 
+config FINGERPRINT_SET_VREG_CONTROL
+	bool "Goodix FOD Fingerprint K9B sensor"
+	default n
+	help
+		Goodix FOD Fingerprint K9B sensor
+
 menuconfig INPUT_FINGERPRINT
 	bool "Fingerprints"
 	help

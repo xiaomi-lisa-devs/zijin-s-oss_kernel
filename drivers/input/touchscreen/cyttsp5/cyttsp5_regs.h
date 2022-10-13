@@ -10,7 +10,6 @@
  * CYTT31XXX
  *
  * Copyright (C) 2015 Parade Technologies
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2012-2015 Cypress Semiconductor
  *
  * This program is free software; you can redistribute it and/or
@@ -974,6 +973,7 @@ struct cyttsp5_core_data {
 	struct mutex system_lock;
 	struct mutex adap_lock;
 	struct mutex hid_report_lock;
+	struct mutex drm_callback_lock;
 	enum cyttsp5_mode mode;
 	spinlock_t spinlock;
 	struct cyttsp5_mt_data md;

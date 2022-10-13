@@ -2,7 +2,6 @@
  * Gadget Function Driver for DTP
  *
  * Copyright (C) 2020 xiaomi, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  * Author: Deng yong jian <dengyongjian@xiaomi.com>
  *
  * This software is licensed under the terms of the GNU General Public

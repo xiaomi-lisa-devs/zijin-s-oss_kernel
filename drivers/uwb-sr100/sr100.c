@@ -629,6 +629,7 @@ static ssize_t sr100_hbci_read(struct sr100_dev *sr100_dev,char* buf, size_t cou
 
   if(!gpio_get_value(sr100_dev->irq_gpio)){
    printk("IRQ is low during firmware download");
+   ret = 5000;
    goto hbci_fail;
   }
 

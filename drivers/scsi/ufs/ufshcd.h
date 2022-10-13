@@ -3,7 +3,6 @@
  *
  * This code is based on drivers/scsi/ufs/ufshcd.h
  * Copyright (C) 2011-2013 Samsung India Software Operations
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (c) 2013-2020, The Linux Foundation. All rights reserved.
  *
  * Authors:
@@ -1235,6 +1234,7 @@ extern int ufshcd_dme_get_attr(struct ufs_hba *hba, u32 attr_sel,
 			       u32 *mib_val, u8 peer);
 extern int ufshcd_config_pwr_mode(struct ufs_hba *hba,
 			struct ufs_pa_layer_attr *desired_pwr_mode);
+extern void ufshcd_hba_stoped(struct ufs_hba *hba, bool can_sleep);
 /* UIC command interfaces for DME primitives */
 #define DME_LOCAL	0
 #define DME_PEER	1
@@ -1319,18 +1319,6 @@ void ufshcd_fixup_dev_quirks(struct ufs_hba *hba, struct ufs_dev_fix *fixups);
 
 int ufshcd_hold(struct ufs_hba *hba, bool async);
 void ufshcd_release(struct ufs_hba *hba);
-
-#ifdef CONFIG_SCSI_UFSHCD_QTI
-void ufshcd_scsi_block_requests(struct ufs_hba *hba);
-void ufshcd_scsi_unblock_requests(struct ufs_hba *hba);
-int ufshcd_wait_for_doorbell_clr(struct ufs_hba *hba, u64 wait_timeout_us);
-int ufshcd_change_power_mode(struct ufs_hba *hba,
-			     struct ufs_pa_layer_attr *pwr_mode);
-
-extern void ufshcd_apply_pm_quirks(struct ufs_hba *hba);
-extern int ufshcd_scale_clks(struct ufs_hba *hba, bool scale_up);
-extern int ufshcd_read_device_desc(struct ufs_hba *hba, u8 *buf, u32 size);
-#endif
 
 int ufshcd_map_desc_id_to_length(struct ufs_hba *hba, enum desc_idn desc_id,
 	int *desc_length);
@@ -1497,6 +1485,8 @@ static inline void ufshcd_vops_dbg_register_dump(struct ufs_hba *hba)
 static inline void ufshcd_vops_device_reset(struct ufs_hba *hba)
 {
 	if (hba->vops && hba->vops->device_reset) {
+		/* disable hba before device reset */
+		ufshcd_hba_stoped(hba, true);
 		hba->vops->device_reset(hba);
 		ufshcd_set_ufs_dev_active(hba);
 		if (ufshcd_is_wb_allowed(hba)) {

@@ -151,7 +151,7 @@ int fuse_do_open(struct fuse_conn *fc, u64 nodeid, struct file *file,
 		if (!err) {
 			ff->fh = outarg.fh;
 			ff->open_flags = outarg.open_flags;
-			#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+			#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 			fuse_passthrough_setup(fc, ff, &outarg);
 			#endif
 		} else if (err != -ENOSYS) {
@@ -285,7 +285,7 @@ void fuse_release_common(struct file *file, bool isdir)
 	struct fuse_file *ff = file->private_data;
 	struct fuse_release_args *ra = ff->release_args;
 	int opcode = isdir ? FUSE_RELEASEDIR : FUSE_RELEASE;
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	fuse_passthrough_release(&ff->passthrough);
 	#endif
 	fuse_prepare_release(fi, ff, file->f_flags, opcode);
@@ -1578,7 +1578,7 @@ static ssize_t fuse_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
 
 	if (fuse_is_bad(file_inode(file)))
 		return -EIO;
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	if (ff->passthrough.filp)
 		return fuse_passthrough_read_iter(iocb, to);
 	else if (!(ff->open_flags & FOPEN_DIRECT_IO))
@@ -1597,7 +1597,7 @@ static ssize_t fuse_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
 
 	if (fuse_is_bad(file_inode(file)))
 		return -EIO;
-#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	if (ff->passthrough.filp)
 		return fuse_passthrough_write_iter(iocb, from);
 	else if (!(ff->open_flags & FOPEN_DIRECT_IO))
@@ -2316,7 +2316,7 @@ static const struct vm_operations_struct fuse_file_vm_ops = {
 static int fuse_file_mmap(struct file *file, struct vm_area_struct *vma)
 {
 	struct fuse_file *ff = file->private_data;
-	#if defined(CONFIG_PASSTHROUGH_SYSTEM) && defined(CONFIG_REGION_IS_CN)
+	#if defined(CONFIG_PASSTHROUGH_SYSTEM)
 	if (ff->passthrough.filp)
 		return fuse_passthrough_mmap(file, vma);
 	#endif

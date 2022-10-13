@@ -4,7 +4,6 @@
  *
  * Author: Alexander Potapenko <glider@google.com>
  * Copyright (C) 2016 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  *
  * Based on code by Dmitry Chernenkov.
  *
@@ -173,7 +172,7 @@ static void qlist_free_all(struct qlist_head *q, struct kmem_cache *cache)
 	qlist_init(q);
 }
 
-bool quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
+void quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
 {
 	unsigned long flags;
 	struct qlist_head *q;
@@ -192,7 +191,7 @@ bool quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
 	q = this_cpu_ptr(&cpu_quarantine);
 	if (q->offline) {
 		local_irq_restore(flags);
-		return false;
+		return;
 	}
 	qlist_put(q, &info->quarantine_link, cache->size);
 	if (unlikely(q->bytes > QUARANTINE_PERCPU_SIZE)) {
@@ -215,8 +214,6 @@ bool quarantine_put(struct kasan_free_meta *info, struct kmem_cache *cache)
 	}
 
 	local_irq_restore(flags);
-
-	return true;
 }
 
 void quarantine_reduce(void)

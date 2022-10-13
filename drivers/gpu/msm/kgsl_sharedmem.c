@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (c) 2002,2007-2021, The Linux Foundation. All rights reserved.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #include <asm/cacheflush.h>
@@ -478,6 +477,8 @@ static vm_fault_t kgsl_paged_vmfault(struct kgsl_memdesc *memdesc,
 		return VM_FAULT_SIGBUS;
 
 	pgoff = offset >> PAGE_SHIFT;
+	if( !memdesc->pages)
+		return VM_FAULT_NOPAGE;
 
 	return vmf_insert_page(vma, vmf->address, memdesc->pages[pgoff]);
 }

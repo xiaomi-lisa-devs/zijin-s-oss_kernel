@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0
 /*
  * Copyright (C) 2010-2011 Canonical Ltd <jeremy.kerr@canonical.com>
- * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (C) 2011-2012 Linaro Ltd <mturquette@linaro.org>
  *
  * Standard functionality for the common clock API.  See Documentation/driver-api/clk.rst
@@ -3438,7 +3437,6 @@ static void clock_debug_print_enabled_clocks(struct seq_file *s)
 }
 
 
-
 static int enabled_clocks_show(struct seq_file *s, void *unused)
 {
 	mutex_lock(&clk_debug_lock);
@@ -3565,6 +3563,7 @@ static int __init clk_debug_init(void)
 	mutex_lock(&clk_debug_lock);
 	hlist_for_each_entry(core, &clk_debug_list, debug_node)
 		clk_debug_create_one(core, rootdir);
+
 
 	inited = 1;
 	mutex_unlock(&clk_debug_lock);

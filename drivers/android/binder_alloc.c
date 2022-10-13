@@ -4,7 +4,6 @@
  * Android IPC Subsystem
  *
  * Copyright (C) 2007-2017 Google, Inc.
- * Copyright (C) 2021 XiaoMi, Inc.
  */
 
 #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
