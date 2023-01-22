@@ -26,6 +26,7 @@
 #include <linux/freezer.h>
 #include <linux/compat.h>
 #include <linux/module.h>
+
 #include "posix-timers.h"
 
 #define CREATE_TRACE_POINTS
@@ -214,9 +215,6 @@ static enum hrtimer_restart alarmtimer_fired(struct hrtimer *timer)
 	alarmtimer_dequeue(base, alarm);
 	spin_unlock_irqrestore(&base->lock, flags);
 
-#ifdef CONFIG_DEBUG_POWER_MI
-	pr_info("[oem][alarm]: type=%d, func=%pf\n", alarm->type, alarm->function);
-#endif
 	if (alarm->function)
 		restart = alarm->function(alarm, base->gettime());
 

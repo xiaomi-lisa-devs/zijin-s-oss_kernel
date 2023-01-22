@@ -62,9 +62,13 @@ static atomic_t temp_state = ATOMIC_INIT(0);
 static atomic_t charger_mode = ATOMIC_INIT(-1);
 static atomic_t modem_limit = ATOMIC_INIT(0);
 static atomic_t market_download_limit = ATOMIC_INIT(0);
+static atomic_t flash_state = ATOMIC_INIT(0);
+static atomic_t wifi_limit = ATOMIC_INIT(0);
+static atomic_t poor_modem_limit = ATOMIC_INIT(0);
 static char boost_buf[128];
 const char *board_sensor;
 static char board_sensor_temp[128];
+static char board_sensor_second_temp[128];
 #endif
 /*
  * Governor section: set of functions to handle thermal governors
@@ -1973,6 +1977,25 @@ static DEVICE_ATTR(board_sensor_temp, 0664,
 		thermal_board_sensor_temp_show, thermal_board_sensor_temp_store);
 
 static ssize_t
+thermal_board_sensor_second_temp_show(struct device *dev,
+		struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, board_sensor_second_temp);
+}
+
+static ssize_t
+thermal_board_sensor_second_temp_store(struct device *dev,
+		struct device_attribute *attr, const char *buf, size_t len)
+{
+	snprintf(board_sensor_second_temp, PAGE_SIZE, buf);
+
+	return len;
+}
+
+static DEVICE_ATTR(board_sensor_second_temp, 0664,
+		thermal_board_sensor_second_temp_show, thermal_board_sensor_second_temp_store);
+
+static ssize_t
 thermal_modem_limit_show(struct device *dev,
 				      struct device_attribute *attr, char *buf)
 {
@@ -2015,6 +2038,63 @@ thermal_market_download_limit_store(struct device *dev,
 static DEVICE_ATTR(market_download_limit, 0664,
 	   thermal_market_download_limit_show, thermal_market_download_limit_store);
 
+static ssize_t
+thermal_flash_state_show(struct device *dev,
+				      struct device_attribute *attr, char *buf)
+{
+	return snprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&flash_state));
+}
+static ssize_t
+thermal_flash_state_store(struct device *dev,
+				      struct device_attribute *attr, const char *buf, size_t len)
+{
+	int val = -1;
+	val = simple_strtol(buf, NULL, 10);
+	atomic_set(&flash_state, val);
+	return len;
+}
+
+static DEVICE_ATTR(flash_state, 0664,
+           thermal_flash_state_show, thermal_flash_state_store);
+
+static ssize_t
+thermal_wifi_limit_show(struct device *dev,
+                                      struct device_attribute *attr, char *buf)
+{
+        return snprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&wifi_limit));
+}
+static ssize_t
+thermal_wifi_limit_store(struct device *dev,
+                                      struct device_attribute *attr, const char *buf, size_t len)
+{
+        int val = -1;
+        val = simple_strtol(buf, NULL, 10);
+        atomic_set(&wifi_limit, val);
+        return len;
+}
+
+static DEVICE_ATTR(wifi_limit, 0664,
+	   thermal_wifi_limit_show, thermal_wifi_limit_store);
+
+static ssize_t
+thermal_poor_modem_limit_show(struct device *dev,
+                                      struct device_attribute *attr, char *buf)
+{
+        return snprintf(buf, PAGE_SIZE, "%d\n", atomic_read(&poor_modem_limit));
+}
+static ssize_t
+thermal_poor_modem_limit_store(struct device *dev,
+                                      struct device_attribute *attr, const char *buf, size_t len)
+{
+        int val = -1;
+        val = simple_strtol(buf, NULL, 10);
+        atomic_set(&poor_modem_limit, val);
+        return len;
+}
+
+static DEVICE_ATTR(poor_modem_limit, 0664,
+           thermal_poor_modem_limit_show, thermal_poor_modem_limit_store);
+
 int create_thermal_message_node(void)
 {
 	int ret = 0;
@@ -2052,6 +2132,10 @@ int create_thermal_message_node(void)
 		if (ret < 0)
 			pr_warn("Thermal: create board sensor temp node failed\n");
 
+		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_second_temp.attr);
+		if (ret < 0)
+			pr_warn("Thermal: create board sensor second temp node failed\n");
+
 		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_charger_temp.attr);
 		if (ret < 0)
 			pr_warn("Thermal: create charger temp node failed\n");
@@ -2061,16 +2145,30 @@ int create_thermal_message_node(void)
         ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_market_download_limit.attr);
 		if (ret < 0)
 			pr_warn("Thermal: create market download limit node failed\n");
+		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_flash_state.attr);
+		if (ret < 0)
+                        pr_warn("Thermal: create flash state node failed\n");
+		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_wifi_limit.attr);
+		if (ret < 0)
+                        pr_warn("Thermal: create wifi limit node failed\n");
+		ret = sysfs_create_file(&thermal_message_dev.kobj, &dev_attr_poor_modem_limit.attr);
+                if (ret < 0)
+                        pr_warn("Thermal: create poor modem limit node failed\n");
+
 	}
 	return ret;
 }
 
 static void destroy_thermal_message_node(void)
 {
+	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_poor_modem_limit.attr);
+	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_wifi_limit.attr);
+	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_flash_state.attr);
     sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_market_download_limit.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_charger_temp.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_modem_limit.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_temp.attr);
+    sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor_second_temp.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_board_sensor.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_cpu_limits.attr);
 	sysfs_remove_file(&thermal_message_dev.kobj, &dev_attr_temp_state.attr);

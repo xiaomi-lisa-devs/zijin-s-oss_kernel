@@ -36,11 +36,6 @@ struct device *create_function_device(char *name)
 EXPORT_SYMBOL_GPL(create_function_device);
 #endif
 
-#undef dev_dbg
-#undef pr_debug
-#define pr_debug pr_err
-#define dev_dbg dev_err
-
 int check_user_usb_string(const char *name,
 		struct usb_gadget_strings *stringtab_dev)
 {
@@ -147,7 +142,6 @@ struct gadget_config_name {
 	struct list_head list;
 };
 
-#define MAX_USB_STRING_LEN	126
 #define USB_MAX_STRING_WITH_NULL_LEN	(USB_MAX_STRING_LEN+1)
 
 static int usb_string_copy(const char *s, char **s_copy)
@@ -166,7 +160,7 @@ static int usb_string_copy(const char *s, char **s_copy)
 		if (!str)
 			return -ENOMEM;
 	}
-	strcpy(str, s);
+	strncpy(str, s, USB_MAX_STRING_WITH_NULL_LEN);
 	if (str[ret - 1] == '\n')
 		str[ret - 1] = '\0';
 	*s_copy = str;

@@ -9,6 +9,7 @@
 #include <linux/tracepoint.h>
 #include <linux/binfmts.h>
 #include <linux/sched/idle.h>
+#include <linux/delayacct.h>
 
 /*
  * Tracepoint for calling kthread_stop, performed to end a kthread:
@@ -674,15 +675,21 @@ TRACE_EVENT(sched_blocked_reason,
 		__field( pid_t,	pid	)
 		__field( void*, caller	)
 		__field( bool, io_wait	)
+		__field( int, swapin  )
 	),
 
 	TP_fast_assign(
 		__entry->pid	= tsk->pid;
 		__entry->caller = (void*)get_wchan(tsk);
 		__entry->io_wait = tsk->in_iowait;
+#ifdef CONFIG_TASK_DELAY_ACCT
+		__entry->swapin = (tsk->delays->flags & DELAYACCT_PF_SWAPIN);
+#else
+		__entry->swapin = 0;
+#endif
 	),
 
-	TP_printk("pid=%d iowait=%d caller=%pS", __entry->pid, __entry->io_wait, __entry->caller)
+	TP_printk("pid=%d iowait=%d caller=%pS__%dinswapin", __entry->pid, __entry->io_wait, __entry->caller, __entry->swapin)
 );
 
 /*

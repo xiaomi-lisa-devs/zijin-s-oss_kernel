@@ -627,6 +627,9 @@ struct walt_task_struct {
 	u64				cpu_cycles;
 	cpumask_t			cpus_requested;
 	bool				iowaited;
+	#ifdef CONFIG_RTMM
+	u64				proc_load;
+	#endif
 };
 
 #else
@@ -1355,7 +1358,12 @@ struct task_struct {
 	 */
 	u64				timer_slack_ns;
 	u64				default_timer_slack_ns;
-
+#ifdef CONFIG_PERF_CRITICAL_RT_TASK
+	unsigned int    		critical_rt_task;
+#endif
+#ifdef CONFIG_SF_BINDER
+	unsigned int			sf_binder_task;
+#endif
 #ifdef CONFIG_PERF_HUMANTASK
 	unsigned int			human_task;
 	unsigned int                    inherit_task;

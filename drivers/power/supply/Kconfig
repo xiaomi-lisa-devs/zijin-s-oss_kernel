@@ -462,6 +462,12 @@ config BQ_CLOUD_AUTHENTICATION
 	help
 	  Say Y here to enable Bq cloud thentication
 
+config AI_RSOC_L9
+	tristate "get average current and RSOC config"
+	depends on QTI_PMIC_GLINK
+	help
+	  Say Y here to enable create node to get average current and RSOC
+
 config BQ2597X
 	tristate "BQ2597X charger"
 	depends on QTI_PMIC_GLINK

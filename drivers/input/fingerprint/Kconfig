@@ -1,18 +1,6 @@
 #
 # Fingerprint driver configuration
 #
-config FINGERPRINT_FP_VREG_CONTROL
-    bool "fingerprint fp_vdd_reg regulator control"
-    default n
-	---help---
-	  Say Y here to enable fp_vdd_vreg regulator by device driver
-
-config FINGERPRINT_SET_VREG_CONTROL
-	bool "Goodix FOD Fingerprint K9B sensor"
-	default n
-	help
-		Goodix FOD Fingerprint K9B sensor
-
 menuconfig INPUT_FINGERPRINT
 	bool "Fingerprints"
 	help
@@ -23,6 +11,7 @@ menuconfig INPUT_FINGERPRINT
 
 if INPUT_FINGERPRINT
 
-source "drivers/input/fingerprint/goodix_fod/Kconfig"
+source "drivers/input/fingerprint/xiaomi_fp/Kconfig"
+source "drivers/input/fingerprint/goodix_tee/Kconfig"
 
 endif

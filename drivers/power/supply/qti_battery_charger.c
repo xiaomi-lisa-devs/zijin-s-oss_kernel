@@ -1494,9 +1494,9 @@ static u8 get_quick_charge_type(struct battery_chg_dev *bcdev)
 		case ADAPTER_XIAOMI_QC3_20W:
 		case ADAPTER_XIAOMI_PD_20W:
 		case ADAPTER_XIAOMI_CAR_20W:
+			return QUICK_CHARGE_TURBE;
 		case ADAPTER_XIAOMI_PD_30W:
 		case ADAPTER_VOICE_BOX_30W:
-			return QUICK_CHARGE_TURBE;
 		case ADAPTER_XIAOMI_PD_50W:
 		case ADAPTER_XIAOMI_PD_60W:
 		case ADAPTER_XIAOMI_PD_100W:
@@ -2899,7 +2899,6 @@ static ssize_t authentic_store(struct class *c,
 
 	if (kstrtobool(buf, &val))
 		return -EINVAL;
-
 	pr_err("authentic_store: %d\n", val);
 	rc = write_property_id(bcdev, &bcdev->psy_list[PSY_TYPE_XM],
 				XM_PROP_AUTHENTIC, val);
@@ -5420,6 +5419,7 @@ static void xm_charger_debug_info_print_work(struct work_struct *work)
 	int vbus_vol_uv, ibus_ua;
 	int interval = DISCHARGE_PERIOD_S;
 	union power_supply_propval val = {0, };
+	//struct psy_state *pst = &bcdev->psy_list[PSY_TYPE_XM];
 
 	usb_psy = bcdev->psy_list[PSY_TYPE_USB].psy;
 	if (usb_psy != NULL) {
@@ -5662,7 +5662,6 @@ static int battery_chg_probe(struct platform_device *pdev)
 
 	atomic_set(&bcdev->state, PMIC_GLINK_STATE_UP);
 	bcdev->dev = dev;
-
 	client_data.id = MSG_OWNER_BC;
 	client_data.name = "battery_charger";
 	client_data.msg_cb = battery_chg_callback;

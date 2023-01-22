@@ -133,6 +133,7 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+static int two_hundred = 200;
 static int one_thousand = 1000;
 #ifdef CONFIG_QCOM_HYP_CORE_CTL
 static int five_hundred = 500;
@@ -663,6 +664,7 @@ static struct ctl_table kern_table[] = {
 		.extra1		= &min_sched_tunable_scaling,
 		.extra2		= &max_sched_tunable_scaling,
 	},
+
 	{
 		.procname	= "sched_migration_cost_ns",
 		.data		= &sysctl_sched_migration_cost,
@@ -1748,7 +1750,7 @@ static struct ctl_table vm_table[] = {
 		.mode		= 0644,
 		.proc_handler	= proc_dointvec_minmax,
 		.extra1		= SYSCTL_ZERO,
-		.extra2		= &one_hundred,
+		.extra2		= &two_hundred,
 	},
 	{
 		.procname       = "want_old_faultaround_pte",

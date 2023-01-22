@@ -142,8 +142,8 @@ struct qcom_glink {
 	struct qcom_glink_pipe *tx_pipe;
 
 	int irq;
-        char irqname[GLINK_NAME_SIZE];
-	  
+	char irqname[GLINK_NAME_SIZE];
+
 	struct kthread_worker kworker;
 	struct task_struct *task;
 
@@ -1252,6 +1252,7 @@ static int qcom_glink_handle_signals(struct qcom_glink *glink,
 
 static irqreturn_t qcom_glink_native_intr(int irq, void *data)
 {
+	int handle_count = 0;
 	struct qcom_glink *glink = data;
 	struct glink_msg msg;
 	unsigned int param1;
@@ -1329,8 +1330,14 @@ static irqreturn_t qcom_glink_native_intr(int irq, void *data)
 			break;
 		}
 
-		if (ret)
-			break;
+		if (ret) {
+			ipc_log_string(glink->ilc, "cmd: 0x%x, ret: 0x%x\n", cmd, ret);
+			if (ret == -ENODEV && handle_count++ > 10) {
+				//if received ENODEV packets more than 10, then break the loop
+				break;
+			} else if (ret != -ENODEV)
+				break;
+		}
 	}
 
 	return IRQ_HANDLED;

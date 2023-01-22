@@ -27,6 +27,7 @@
 #include <linux/soc/qcom/irq.h>
 
 #include <linux/soc/qcom/irq.h>
+
 #include "../core.h"
 #include "../pinconf.h"
 #include "pinctrl-msm.h"
@@ -1653,6 +1654,24 @@ int msm_pinctrl_probe(struct platform_device *pdev,
 	platform_set_drvdata(pdev, pctrl);
 
 	dev_dbg(&pdev->dev, "Probed Qualcomm pinctrl driver\n");
+
+#if IS_ENABLED(CONFIG_PINCTRL_REDWOOD)
+	// disable unused gpios for gic stuck
+	pr_err("Disable all unused GPIO  wakeup\n");
+	msm_gpio_mpm_wake_set(20, false);
+  	msm_gpio_mpm_wake_set(21, false);
+  	msm_gpio_mpm_wake_set(23, false);
+  	msm_gpio_mpm_wake_set(35, false);
+  	msm_gpio_mpm_wake_set(43, false);
+  	msm_gpio_mpm_wake_set(44, false);
+  	msm_gpio_mpm_wake_set(68, false);
+  	msm_gpio_mpm_wake_set(77, false);
+  	msm_gpio_mpm_wake_set(78, false);
+  	msm_gpio_mpm_wake_set(82, false);
+  	msm_gpio_mpm_wake_set(83, false);
+  	msm_gpio_mpm_wake_set(101, false);
+  	msm_gpio_mpm_wake_set(140, false);
+#endif
 
 #ifdef CONFIG_PINCTRL_SM7325
 	return 0;

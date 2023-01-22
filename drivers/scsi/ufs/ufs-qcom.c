@@ -1683,6 +1683,7 @@ static int ufs_qcom_pwr_change_notify(struct ufs_hba *hba,
 	struct ufs_qcom_dev_params ufs_qcom_cap;
 	int ret = 0;
 
+
 	if (!dev_req_params) {
 		pr_err("%s: incoming dev_req_params is NULL\n", __func__);
 		ret = -EINVAL;
@@ -2023,7 +2024,6 @@ static int ufs_qcom_setup_clocks(struct ufs_hba *hba, bool on,
 	 */
 	if (!host)
 		return 0;
-
 	switch (status) {
 	case PRE_CHANGE:
 		if (on) {

@@ -89,11 +89,6 @@
 
 #define USB_HSPHY_VDD_HPM_LOAD 30000 /* uA */
 
-#undef dev_dbg
-#undef pr_debug
-#define pr_debug pr_err
-#define dev_dbg dev_err
-
 struct msm_hsphy {
 	struct usb_phy		phy;
 	void __iomem		*base;
@@ -722,6 +717,13 @@ static int msm_hsphy_dpdm_regulator_disable(struct regulator_dev *rdev)
 	mutex_lock(&phy->phy_lock);
 	if (phy->dpdm_enable) {
 		if (!phy->cable_connected) {
+				/*
+				* Phy reset is needed in case multiple instances
+				* of HSPHY exists with shared power supplies. This
+				* reset is to bring out the PHY from high-Z state
+				* and avoid extra current consumption.
+		        */
+			msm_hsphy_reset(phy);
 			msm_hsphy_enable_clocks(phy, false);
 			ret = msm_hsphy_enable_power(phy, false);
 			if (ret < 0) {

@@ -31,11 +31,6 @@
 #include "gadget.h"
 #include "io.h"
 
-#undef dev_dbg
-#undef pr_debug
-#define pr_debug pr_err
-#define dev_dbg dev_err
-
 #define DWC3_ALIGN_FRAME(d, n)	(((d)->frame_number + ((d)->interval * (n))) \
 					& ~((d)->interval - 1))
 
@@ -975,7 +970,6 @@ static int dwc3_gadget_ep_disable(struct usb_ep *ep)
 	struct dwc3			*dwc;
 	unsigned long			flags;
 	int				ret;
-	bool				call_rpm_put = false;
 
 	if (!ep) {
 		pr_debug("dwc3: invalid parameters\n");
@@ -990,18 +984,10 @@ static int dwc3_gadget_ep_disable(struct usb_ep *ep)
 					dep->name))
 		return 0;
 
-	if (atomic_read(&dwc->in_lpm)) {
-		pm_runtime_get_sync(dwc->sysdev);
-		call_rpm_put = true;
-	}
 	spin_lock_irqsave(&dwc->lock, flags);
 	ret = __dwc3_gadget_ep_disable(dep);
 	dbg_event(dep->number, "DISABLE", ret);
 	spin_unlock_irqrestore(&dwc->lock, flags);
-	if (call_rpm_put) {
-		pm_runtime_mark_last_busy(dwc->sysdev);
-		pm_runtime_put_autosuspend(dwc->sysdev);
-	}
 
 	return ret;
 }
@@ -3184,7 +3170,9 @@ static void dwc3_gadget_free_endpoints(struct dwc3 *dwc)
 			list_del(&dep->endpoint.ep_list);
 		}
 
-		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
+		debugfs_remove_recursive(debugfs_lookup(dep->name,
+				debugfs_lookup(dev_name(dep->dwc->dev),
+						usb_debug_root)));
 		kfree(dep);
 	}
 }
@@ -4155,7 +4143,9 @@ static void dwc3_gadget_interrupt(struct dwc3 *dwc,
 	case DWC3_DEVICE_EVENT_EOPF:
 		/* It changed to be suspend event for version 2.30a and above */
 		if (dwc->revision >= DWC3_REVISION_230A) {
-			dbg_event(0xFF, "GAD SUS", 0);
+//#ifndef CONFIG_CLOSE_PRINT_K9E
+			//dbg_event(0xFF, "GAD SUS", 0);
+//#endif
 			dwc->dbg_gadget_events.suspend++;
 			/*
 			 * Ignore suspend event until the gadget enters into

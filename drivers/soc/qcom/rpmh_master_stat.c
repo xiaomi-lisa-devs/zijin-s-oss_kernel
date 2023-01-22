@@ -202,6 +202,7 @@ void msm_rpmh_master_stats_update(void)
 }
 EXPORT_SYMBOL(msm_rpmh_master_stats_update);
 
+
 struct msm_rpmh_master_stats *msm_rpmh_get_apss_data(void)
 {
 	return &apss_master_stats;
@@ -247,7 +248,6 @@ static int msm_rpmh_master_stats_probe(struct platform_device *pdev)
 	}
 
 	platform_set_drvdata(pdev, prvdata);
-
 	return ret;
 
 fail_sysfs:
